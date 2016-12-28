@@ -34,4 +34,3 @@ tankette.ChaseCam = function(target, chase_camera) {
     this.cam.lookAt(AtPos);
   };
 };
-
