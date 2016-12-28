@@ -5,18 +5,21 @@
  */
 
 /* global playerManager */
+/* global packet_length */
+/* global rocketManager */
 /* global turdleManager */
 /* global dotManager */
 
 console.log("Websocket init");
 
-//var socket = new WebSocket("ws://zettix.com:8889/BoxMove/actions");
-var socket = new WebSocket("ws://argo:8080/BoxMove/actions");
+//var socket = new WebSocket("ws://zettix.com:8889/Tankette/actions");
+var socket = new WebSocket("ws://argo:8080/Tankette/actions");
 socket.onmessage = onMessage;
 
 function onMessage(event) {
     var mm = JSON.parse(event.data);
     var msg_type = mm.msg_type;
+    packet_length = event.data.length;
     if (msg_type === "pos") {
       playerManager.UpdatePlayer(
        mm.id,
@@ -159,6 +162,7 @@ function pushButtons(wasd) {
         B: wasd.moveBackward,
         L: wasd.moveLeft,
         R: wasd.moveRight,
+        A: wasd.toggleFire,
         T: wasd.toggleTurdle};
     if (socket.readyState === socket.OPEN) {
       socket.send(JSON.stringify(msg));

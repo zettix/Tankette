@@ -3,21 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.zettix.tankette.server;
-
-import com.zettix.tankette.game.HitBoxHandler;
-import com.zettix.tankette.game.Model;
-import com.zettix.tankette.game.ModelManager;
+package com.zettix.rocketsocket;
+import com.zettix.players.Dot;
+import com.zettix.players.HitboxHandler;
 import java.util.HashSet;
 import java.util.Set;
 import javax.websocket.Session;
-import com.zettix.tankette.game.Player;
-import com.zettix.tankette.game.PlayerManager;
-import com.zettix.tankette.game.Turdle;
+import com.zettix.players.Player;
+import com.zettix.players.Turdle;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,12 +30,10 @@ import javax.json.spi.JsonProvider;
  * @author sean
  */
 @ApplicationScoped
-public class GameHandler {
-    private final HashMap<String, Session> sessions = new HashMap<>();
+public class RocketHandler {
+    private final Set sessions = new HashSet<>();
     private final Set players = new HashSet<>();
-    private static final PlayerManager PLAYERMANAGER = new PlayerManager();
-    private static final ModelManager ROCKETMANAGER = new ModelManager();
-    private static final Set<Turdle> turldes = new HashSet<>();
+    private final Set turdles = new HashSet<>();
     
     private final Timer timer = new Timer();
     private final HitboxHandler hitboxHandler;
@@ -50,28 +43,18 @@ public class GameHandler {
     private final long period_ms = 100l;
     boolean doneloop = true;
     int doneloop_count = 0;
-    private long nano_origin = System.nanoTime();
     int turdle_serial = 0;
-    private final double timescaler = 0.0000001;
     // private static final Logger LOG = Logger.getLogger(
-    //            GameHandler.class.getName());
+    //            RocketHandler.class.getName());
 
-    //private static final Logger LOG = LogManager.getLogger(GameHandler.class.getName());
-    private boolean testrocket = false;
+    //private static final Logger LOG = LogManager.getLogger(RocketHandler.class.getName());
     
-
-    private static final DecimalFormat DF = new DecimalFormat("#.##");
-    
-    
-    public GameHandler() {
+    public RocketHandler() {
         hitboxHandler = new HitboxHandler();
         this.ScheduleRunMe();
     }
-
-    private synchronized void MainLoop() {
-        long now = System.nanoTime();
-        long deltatime = now - nano_origin;
-        nano_origin = now;
+    
+    private void RunMe() {
         // every frame game loop
         // update collions/physics
         // distribute to clients:
@@ -81,20 +64,8 @@ public class GameHandler {
         //score, etc.
         if (doneloop) {
            doneloop = false;
-           updatePlayers(deltatime);
+           updatePlayers();
            // InfoLog("Horey shett, it works.");
-           period_ms--;
-           if (period_ms < 0) {
-               if (testrocket == false) {
-                   testrocket = true;
-                   Model p = new Model();
-                   p.setId(ROCKETMANAGER.GetNewSerial());
-                   p.setX(10.0);
-                   p.setY(10.0);
-                   p.setZ(10.0);
-                   ROCKETMANAGER.addModel(p);
-               }
-           }
            doneloop = true;
         } else {
             doneloop_count++;
@@ -107,28 +78,36 @@ public class GameHandler {
     class MainLoopTimer extends TimerTask {
         @Override
         public void run() {
-            MainLoop();
+            RunMe();
         }
     }
-
+    
     private void ScheduleRunMe() {
-
+        
         timer.schedule(new MainLoopTimer(), delayseconds * 1000, 10);
     }
-
+    
     public void updateCollisions() {
         hitboxHandler.DetectCollisions();
     }
-
-    public synchronized void addSession(Session session) {
+    
+    public void addSession(Session session) {
         try {
-           sessions.put(session.getId(), session);
+           sessions.add(session);
         } catch (Exception ex) {
             InfoLog("Could not add!!ZZZZZZZZZZZZZZZZ" + ex);
         }
+        // addPlayer(session);
+        //for (Iterator it = players.iterator(); it.hasNext();) {
+        //    Player pi = (Player) it.next();
+        //    JsonObject addMessage = createAddMessage(pi);
+        //    sendToSession(session, addMessage);
+        //}
         addPlayer(session);
-        Player p = PLAYERMANAGER.getPlayerById(session.getId());
-        sendToSession(session, createGamePacket(p));
+        sendToSession(session, createGamePacket());
+        Player p = getPlayerById(session.getId());
+        //JsonObject addMe = createAddMessage(p);
+        //sendToAllConnectedSessions(addMe);
         JsonObject regMessage = createRegisterMessage(p);
         sendToSession(session, regMessage);
     }
@@ -139,29 +118,26 @@ public class GameHandler {
         } catch (IOException ex) {
             sessions.remove(session);
             removePlayer(session.getId());
-            // Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
+            Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
         }
     }
-    public synchronized void removeSession(Session session) {
-        /*  at org.jboss.weld.bean.proxy.ProxyMethodHandler.getInstance(ProxyMethodHandler.java:125)
-  at com.zettix.rocketsocket.RocketHandler$Proxy$_$$_WeldClientProxy.removeSession(Unknown Source)
-  at com.zettix.rocketsocket.SocketServer.close(SocketServer.java:45)
-        */
+    public void removeSession(Session session) {
+        /* 	at org.jboss.weld.bean.proxy.ProxyMethodHandler.getInstance(ProxyMethodHandler.java:125)
+	at com.zettix.rocketsocket.RocketHandler$Proxy$_$$_WeldClientProxy.removeSession(Unknown Source)
+	at com.zettix.rocketsocket.SocketServer.close(SocketServer.java:45)
+        */ 
         String playerid = session.getId();
         removePlayer(playerid);
-        sessions.remove(playerid);
+        sessions.remove(session);
         JsonObject delMe = createDelMessage(playerid);
-        // Do not send to disconnected player:
-        for (Session s : sessions.values()) {
-            sendToSession((Session) s, delMe);
-        }
+        sendToAllConnectedSessions(delMe);
     }
-
+    
     public List getPlayers() {
         return new ArrayList<>(players);
     }
 
-    public synchronized void addPlayer(Session s) {
+    public void addPlayer(Session s) {
         Player p = new Player();
         p.setX(rnd.nextDouble() * 10.0f);
         p.setY(0.0f);
@@ -170,15 +146,10 @@ public class GameHandler {
         p.setYr(rnd.nextDouble() * 3.14f);
         p.setZr(0.0f);
         p.setId(s.getId());
-        PLAYERMANAGER.addPlayer(p);
+        players.add(p);
         hitboxHandler.AddPlayer(p);
     }
-
-    public synchronized void removePlayer(String id) {
-          PLAYERMANAGER.delPlayer(id);
-          hitboxHandler.DelPlayer(id);
-    }
-
+    
     public void addTurdle(String id) {
         Player p = getPlayerById(id);
         if (p.moved) {
@@ -201,18 +172,20 @@ public class GameHandler {
     public void removeTurdle(Turdle t) {        
           turdles.remove(t);
     }
+    
+    public void removePlayer(String id) {        
+          players.remove(getPlayerById(id));
+          hitboxHandler.DelPlayer(id);
+    }
 
-
-    // TODO: convert sessions to hashmap.    
-    public synchronized Session getSessionById(String id) {
-        if (sessions.containsKey(id)) {
-                return sessions.get(id);
+    public Player getPlayerById(String id) {
+        for (Iterator it = players.iterator(); it.hasNext();) {
+            Player p = (Player) it.next();
+            if (p.getId().equals(id)) {
+                return p;
+            }
         }
         return null;
-    }
-    
-    public synchronized Player getPlayerById(String id) {
-        return (Player) PLAYERMANAGER.getPlayerById(id);
     }
 
     public Turdle getTurdleById(String id) {
@@ -225,76 +198,64 @@ public class GameHandler {
         return null;
     }
     
-    
-    private synchronized JsonObject createGamePacket(Player forplayer) {
+    private synchronized JsonObject createGamePacket() {
         JsonProvider provider = JsonProvider.provider();
-        JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
-        
-        List players = PLAYERMANAGER.getPlayerIdsAsList();
+        JsonArrayBuilder playerlist = provider.createArrayBuilder();
         for (Iterator it = players.iterator(); it.hasNext();) {
-            Player p = (Player) PLAYERMANAGER.getPlayerById((String) it.next());
-
+            Player p = (Player) it.next();
             int collision = 0;
             if (hitboxHandler.IsHit(p)) {
                 collision = 1;
             }
-            // TODO: Adjust precision of numbers.
             JsonObject pj = provider.createObjectBuilder()
               .add("id", p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .add("col", collision)
-              .build();
-            jplayerlist.add(pj);
+              .add("x", p.getX())
+              .add("y", p.getY())
+              .add("z", p.getZ())
+              .add("xr", p.getXr())
+              .add("yr", p.getYr())
+              .add("zr", p.getZr())
+              .add("col", collision)                    
+              .build();        
+            playerlist.add(pj);
         }
-        
-        JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
-        List rockets = ROCKETMANAGER.getModelIdsAsList();
-        for (Iterator it = rockets.iterator(); it.hasNext();) {
-            Model p = (Model) ROCKETMANAGER.getModelById((String) it.next());
-            JsonObject rj = provider.createObjectBuilder()
-              .add("id", p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .build();
-            jrocketlist.add(rj);
-        }
- 
-        JsonArrayBuilder jturdlelist = provider.createArrayBuilder();
+        JsonArrayBuilder turdlelist = provider.createArrayBuilder();
         for (Iterator it = turdles.iterator(); it.hasNext();) {
             Turdle p = (Turdle) it.next();
             JsonObject pj = provider.createObjectBuilder()
-              .add("id", DF.format(p.getId()))
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .add("s", DF.format(p.getScale()))
+              .add("id", p.getId())
+              .add("x", p.getX())
+              .add("y", p.getY())
+              .add("z", p.getZ())
+              .add("xr", p.getXr())
+              .add("yr", p.getYr())
+              .add("zr", p.getZr())
+              .add("s", p.getScale())      
               .build();        
-            jturdlelist.add(pj);
+            turdlelist.add(pj);
+        }
+        JsonArrayBuilder dotlist = provider.createArrayBuilder();
+        for (Iterator it = hitboxHandler.dots.iterator(); it.hasNext();) {
+            Dot p = (Dot) it.next();
+            JsonObject pj = provider.createObjectBuilder()
+              .add("x", p.getX())
+              .add("y", p.getY())
+              .add("z", p.getZ())
+              .build(); 
+            dotlist.add(pj);
         }
         
-        // TODO !!!!!!!!!! for iterator rockets, iterator explosions...
         JsonObject packet = provider.createObjectBuilder()
                 .add("msg_type", "V1")
-                .add("playerlist", jplayerlist)
-                .add("turdlelist", jturdlelist)
-                .add("rocketlist", jrocketlist)
+                .add("playerlist", playerlist)
+                .add("turdlelist", turdlelist)
+                .add("dotlist", dotlist)
                 .build();
         return packet;
+        
     }
-
-    private JsonObject createPosMessage(Player p) {
+    
+    private JsonObject createMoveMessage(Player p) {
         int collision = 0;
         if (hitboxHandler.IsHit(p)) {
             collision = 1;
@@ -311,18 +272,18 @@ public class GameHandler {
                 .add("zr",p.getZr())
                 .add("col", collision)
                 .build();
-        return addMessage;
+        return addMessage;            
     }
-
+    
     private JsonObject createRegisterMessage(Player p) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject addMessage = provider.createObjectBuilder()
                 .add("msg_type", "register")
                 .add("id", p.getId())
                 .build();
-        return addMessage;
-    }
-
+        return addMessage; 
+    }           
+    
     private JsonObject createAddMessage(Player p) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject addMessage = provider.createObjectBuilder()
@@ -335,18 +296,17 @@ public class GameHandler {
                 .add("yr",p.getYr())
                 .add("zr",p.getZr())
                 .build();
-        return addMessage;
+        return addMessage; 
     }
-    
     private JsonObject createDelMessage(String id) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject addMessage = provider.createObjectBuilder()
                 .add("msg_type", "del")
                 .add("id", id)
                 .build();
-        return addMessage;
+        return addMessage; 
     }
-
+    
     private void updateTurdles() {
         Set removals = new HashSet<>();
         for (Iterator it = turdles.iterator(); it.hasNext();) {
@@ -365,49 +325,37 @@ public class GameHandler {
             turdles.remove(it.next());
         }
     }
-
-    private void updatePlayers(long deltatime) {
+    
+    
+    
+    private void updatePlayers() {
         
-        List<Player> players = PLAYERMANAGER.getPlayersAsList();
-
-        // Move/Shoot
-        for (Player p : players) {
-            updatePlayerLocation(p, deltatime);
+        for (Iterator it = players.iterator(); it.hasNext();) {
+            Player p = (Player) it.next();
+            updatePlayerLocation(p);
             if (p.toggleturdle) {
                addTurdle(p.getId());
             }
-            if (p.togglefire) {
-                if (p.shoot_timeout > 0) {
-                    p.shoot_timeout -= deltatime;
-                } else {
-                    // FIRE!!
-                    p.ResetShootTimeout();
-                }
-            }
         }
-        
-        // Collide
         DetectCollisions();
-        for (Player p : players) {
+        for (Iterator it = players.iterator(); it.hasNext();) {
+            Player p = (Player) it.next();
             if (hitboxHandler.IsHit(p)) {
-                MoveUndo(p, deltatime);
+                MoveUndo(p);
             }
         }
         updateTurdles();
-                
-        // Network
         sendToAllConnectedSessions(createGamePacket());
         /*
-        for (Player p : players) {
-            String id = p.getId();
-            Session s = (Session) getSessionById(id);
-            sendToSession(s, createGamePacket(p));
+        for (Iterator it = players.iterator(); it.hasNext();) {
+            Player p = (Player) it.next();
+            sendToAllConnectedSessions(createMoveMessage(p));
         }
         */
     }
-
-    public void updatePlayerLocation(Player p, long deltatime) {
-        double delta = (double) (deltatime) * timescaler;
+    
+    public void updatePlayerLocation(Player p) {
+        double delta = 1.0;
         p.moved = false;
         if (p.forward) {
             p.MoveForward(delta);
@@ -422,15 +370,15 @@ public class GameHandler {
         }
         if (p.right) {
             p.MoveRight(delta);
-        }
+        }        
     }
-
+    
     private void DetectCollisions() {
         hitboxHandler.DetectCollisions();
     }
-
-    private void MoveUndo(Player p, long deltatime) {
-        double delta = 2.0 * (double) (deltatime) * timescaler;
+    
+    private void MoveUndo(Player p) {
+        double delta = 2.0;
         //InfoLog(hitboxHandler.DetectCollisions());  // optimize by player?
         // simple: if collision on player, undo move.
           if (p.back) {
@@ -446,18 +394,17 @@ public class GameHandler {
             p.MoveRight(delta);
           }
     }
-
+    
     private void sendToAllConnectedSessions(JsonObject message) {
-        // TODO: does this have to ack, they are TCP connections?
-        for (Session session : sessions.values()) {
+        for (Iterator it = sessions.iterator(); it.hasNext();) {
+            Session session = (Session) it.next();
             sendToSession(session, message);
         }
     }
-
+    
     public void LogHits() {
         InfoLog(hitboxHandler.GetHits());
     }
-    
     public void InfoLog(String msg) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject logMessage = provider.createObjectBuilder()
