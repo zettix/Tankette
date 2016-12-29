@@ -8,7 +8,7 @@
             <file>file:/home/sean/NetBeansProjects/Tankette/web/index.html</file>
             <file>file:/home/sean/NetBeansProjects/Tankette/src/java/com/zettix/tankette/server/GameHandler.java</file>
             <file>file:/home/sean/NetBeansProjects/Tankette/web/websocket.js</file>
-            <file>file:/home/sean/NetBeansProjects/Tankette/src/java/com/zettix/tankette/server/RocketHandler.java</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/src/java/com/zettix/tankette/game/HitboxHandler.java</file>
         </group>
     </open-files>
 </project-private>

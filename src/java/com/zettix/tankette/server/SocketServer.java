@@ -30,6 +30,8 @@ import javax.json.JsonReader;
 @ServerEndpoint("/actions")
 public class SocketServer {
     
+    private final Logger LOG = Logger.getLogger("SocketServer");
+    
     @Inject
     private GameHandler sessionHandler;
     
@@ -85,6 +87,7 @@ public class SocketServer {
         }    
     } 
     void InfoLog(String msg) {
+        LOG.warning(msg);
        Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, 
                null, msg); 
     }
