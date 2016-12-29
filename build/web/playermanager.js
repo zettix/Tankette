@@ -41,7 +41,7 @@ tankette.PlayerManager = function(model, scene) {
     };
     
     this.NumPlayers = function() {
-        return Object.keys(players);
+        return Object.keys(players).length;
     };
     
     this.GetPlayer = function(playerid) {
@@ -60,7 +60,7 @@ tankette.PlayerManager = function(model, scene) {
     };
     
     this.AddPlayer = function(playerid, x, y, z, xr, yr, zr) {
-        var rockie = new tankette.Rocket(model_, x, y, z, xr, yr, zr);
+        var rockie = new tankette.Tank(model_, x, y, z, xr, yr, zr);
         
         players[playerid] = rockie;
         scene.add(rockie.group);

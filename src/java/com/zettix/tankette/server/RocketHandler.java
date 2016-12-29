@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.zettix.rocketsocket;
-import com.zettix.players.Dot;
-import com.zettix.players.HitboxHandler;
+package com.zettix.tankette.server;
+import com.zettix.tankette.game.Dot;
+import com.zettix.tankette.game.HitboxHandler;
 import java.util.HashSet;
 import java.util.Set;
 import javax.websocket.Session;
-import com.zettix.players.Player;
-import com.zettix.players.Turdle;
+import com.zettix.tankette.game.Player;
+import com.zettix.tankette.game.Turdle;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;

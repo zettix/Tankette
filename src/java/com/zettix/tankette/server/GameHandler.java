@@ -5,7 +5,7 @@
  */
 package com.zettix.tankette.server;
 
-import com.zettix.tankette.game.HitBoxHandler;
+import com.zettix.tankette.game.HitboxHandler;
 import com.zettix.tankette.game.Model;
 import com.zettix.tankette.game.ModelManager;
 import java.util.HashSet;
@@ -40,14 +40,14 @@ public class GameHandler {
     private final Set players = new HashSet<>();
     private static final PlayerManager PLAYERMANAGER = new PlayerManager();
     private static final ModelManager ROCKETMANAGER = new ModelManager();
-    private static final Set<Turdle> turldes = new HashSet<>();
+    private static final Set<Turdle> TURDLES = new HashSet<>();
     
     private final Timer timer = new Timer();
     private final HitboxHandler hitboxHandler;
     // Because random.
     private final Random rnd = new Random();
     private final long delayseconds = 2l;
-    private final long period_ms = 100l;
+    private long period_ms = 100l;
     boolean doneloop = true;
     int doneloop_count = 0;
     private long nano_origin = System.nanoTime();
@@ -82,7 +82,7 @@ public class GameHandler {
         if (doneloop) {
            doneloop = false;
            updatePlayers(deltatime);
-           // InfoLog("Horey shett, it works.");
+            InfoLog("Horey shett, it works.");
            period_ms--;
            if (period_ms < 0) {
                if (testrocket == false) {
@@ -128,7 +128,7 @@ public class GameHandler {
         }
         addPlayer(session);
         Player p = PLAYERMANAGER.getPlayerById(session.getId());
-        sendToSession(session, createGamePacket(p));
+        sendToSession(session, createGamePacket());
         JsonObject regMessage = createRegisterMessage(p);
         sendToSession(session, regMessage);
     }
@@ -192,14 +192,14 @@ public class GameHandler {
             t.setXr(p.getXr());
             t.setYr(p.getYr());
             t.setZr(p.getZr());
-            turdles.add(t);
+            TURDLES.add(t);
             p.movecount = 0;
           }
         }
     }
     
     public void removeTurdle(Turdle t) {        
-          turdles.remove(t);
+          TURDLES.remove(t);
     }
 
 
@@ -216,7 +216,7 @@ public class GameHandler {
     }
 
     public Turdle getTurdleById(String id) {
-        for (Iterator it = turdles.iterator(); it.hasNext();) {
+        for (Iterator it = TURDLES.iterator(); it.hasNext();) {
             Turdle p = (Turdle) it.next();
             if (p.getId().equals(id)) {
                 return p;
@@ -226,7 +226,7 @@ public class GameHandler {
     }
     
     
-    private synchronized JsonObject createGamePacket(Player forplayer) {
+    private synchronized JsonObject createGamePacket() {
         JsonProvider provider = JsonProvider.provider();
         JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
         
@@ -269,7 +269,7 @@ public class GameHandler {
         }
  
         JsonArrayBuilder jturdlelist = provider.createArrayBuilder();
-        for (Iterator it = turdles.iterator(); it.hasNext();) {
+        for (Iterator it = TURDLES.iterator(); it.hasNext();) {
             Turdle p = (Turdle) it.next();
             JsonObject pj = provider.createObjectBuilder()
               .add("id", DF.format(p.getId()))
@@ -349,7 +349,7 @@ public class GameHandler {
 
     private void updateTurdles() {
         Set removals = new HashSet<>();
-        for (Iterator it = turdles.iterator(); it.hasNext();) {
+        for (Iterator it = TURDLES.iterator(); it.hasNext();) {
             Turdle t = (Turdle) it.next();
             t.age++;
             double f = (double) (t.age) * 0.005;
@@ -362,7 +362,7 @@ public class GameHandler {
             }
         }
         for (Iterator it = removals.iterator(); it.hasNext();) {
-            turdles.remove(it.next());
+            TURDLES.remove(it.next());
         }
     }
 

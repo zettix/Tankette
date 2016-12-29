@@ -35,6 +35,7 @@ WASD.Controls = function(object , domElement) {
    this.b3_down = false;
    this.toggleCam = false;
    this.toggleTurdle = false;
+   this.toggleFire = false;
    
    // mouse screen interface:
    this.numCellsX = 3;
@@ -137,6 +138,7 @@ WASD.Controls = function(object , domElement) {
     this.moveRight = false;
     this.toggleCam = false;
     this.toggleTurdle = false;
+    this.toggleFire = false;
   };
 
   this.onMouseMove = function(event) {
@@ -153,7 +155,7 @@ WASD.Controls = function(object , domElement) {
   };  
 
 /*
-Key Code Table
+Key Code Table  32 | space
 |        backspace 8|     6 54|               v 86|            f3  114|
 |              tab 9|     7 55|               w 87|            f4  115|
 |           enter 13|     8 56|               x 88|            f5  116|
@@ -195,6 +197,7 @@ Key Code Table
       case 68: /*D*/ this.moveRight = value; break;
       case 67: /*C*/ this.toggleCam = value; break;
       case 84: /*T*/ this.toggleTurdle = value; break;
+      case 32: /* */ this.toggleFire = value; break;
       default: break;
     }
   };

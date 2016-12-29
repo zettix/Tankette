@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.zettix.players;
+package com.zettix.tankette.game;
 
 import com.zettix.graphics.gjkj.hull.BoxHull;
 import com.zettix.graphics.gjkj.util.M4;
 import com.zettix.graphics.gjkj.util.V3;
-import com.zettix.players.Hitbox;
+import com.zettix.tankette.game.Hitbox;
 /**
  *
  * @author sean
@@ -37,8 +37,9 @@ public class Player {
     public void setYr(double f) {  this.yr = f;}
     public void setZr(double f) {  this.zr = f;}
     public void setId(String s) { this.id = s;}
-    public boolean forward, back, left, right, moved, toggleturdle;
+    public boolean forward, back, left, right, moved, toggleturdle, togglefire;
     public int movecount;
+    public int shoot_timeout;
     
     
     public void MoveForward(double delta) {
@@ -85,7 +86,9 @@ public class Player {
         right = false;
         moved = false;
         toggleturdle = false;
+        togglefire = false;
         movecount = 0;
+        shoot_timeout = 0;
     }
     
     // Transform 6 points (collision box) to player space
@@ -112,5 +115,9 @@ public class Player {
         points[5] += z;
         // maybe z/y/x?
         // TODO rotations.
+    }
+        
+    public void ResetShootTimeout() {
+        shoot_timeout = 100;
     }
 }

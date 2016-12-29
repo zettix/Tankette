@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.zettix.players;
+package com.zettix.tankette.game;
 
 import com.zettix.graphics.gjkj.util.M4;
 import com.zettix.graphics.gjkj.util.V3;
