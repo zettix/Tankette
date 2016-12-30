@@ -19,5 +19,8 @@ a chase camera.  "f" or spacebar fires.  "t" makes "turdles" which are
 rotating/scaling copies of rockets for eye candy and testing.
 
 The following screenshot shows what a game session currently looks like.
+![Screenshot from 12/30/2016](https://github.com/zettix/Tankette/blob/master/resources/Screenshot%20from%202016-12-30%2014-49-17.png)
+
+
 
 ### Author: Sean Brennan, 2016
