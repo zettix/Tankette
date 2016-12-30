@@ -10,25 +10,25 @@ package com.zettix.tankette.game;
  * @author sean
  */
 public class Model extends Object3D {
-    public final double radius;
+    public double radius;
     public double nearest;
-    public final double velocity;
-    public final double rotation_speed;
-    public final double[] hitbox = new double[6];
-    public boolean forward, back, left, right, moved, toggleturdle;
+    public double velocity;
+    public double rotation_speed;
+    public boolean forward, back, left, right, moved;
     public int movecount;
-    
+    public Hitbox hitbox;
+
     public void MoveForward(double delta) {
       double cosy = Math.cos(this.getYr());
       double siny = Math.sin(this.getYr());
-      this.setX(getX() + delta * cosy * velocity);
-      this.setZ(getZ() + delta * siny * velocity);
+      x -= delta * cosy * velocity;
+      z += delta * siny * velocity;
     }
     public void MoveBackward(double delta) {
       double cosy = Math.cos(this.getYr());
       double siny = Math.sin(this.getYr());
-      this.setX(getX() + delta * cosy * velocity);
-      this.setZ(getZ() - delta * siny * velocity);  
+      x += delta * cosy * velocity;
+      z -= delta * siny * velocity;  
     }
     
     public void MoveLeft(double delta) {
@@ -43,12 +43,6 @@ public class Model extends Object3D {
      */
     public Model() {
         radius = 3.0f;
-        hitbox[0] = 0.0f;
-        hitbox[1] = 6.0f;
-        hitbox[2] = -0.5f;
-        hitbox[3] = 0.5f;
-        hitbox[4] = -0.5f;
-        hitbox[5] = 0.5f;
         nearest = 0.0f;
         velocity = 1.0f;
         rotation_speed = 0.1f;

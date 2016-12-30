@@ -1,6 +1,6 @@
 /* 
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this group file, choose Tools | Templates
  * and open the template in the editor.
  */
 
@@ -18,29 +18,8 @@ tankette.ModelManager = function(model, scene) {
     var model_ = model;
     var self = this;
     
-    var loaded = false;
-    var js_loaded = false;
+    var loaded = true;
     
-    var loader = new THREE.OBJMTLLoader();
-    var template = new THREE.Object3D();
-    
-    loader.load( "mdl/" + model + ".obj", "mdl/" + model + ".mtl",
-      function(object) {
-        object.castShadow = true;
-        object.receiveShadow = true;
-        // Object.positon = relative to group.
-        object.scale.x = 2.0;
-        object.scale.y = 2.0;
-        object.scale.z = 2.0;
-        //object.rotation.y = -Math.PI * 0.5;
-        object.rotation.x = Math.PI * 0.5;
-        object.rotation.z = Math.PI * 0.5;
-        object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
-        template.add(object);
-        js_loaded = true;
-        loaded = true;
-     });
-
     this.NumModels = function() {
         return Object.keys(models).length;
     };
@@ -62,10 +41,10 @@ tankette.ModelManager = function(model, scene) {
 
     this.AddModel = function(modelid, x, y, z, xr, yr, zr) {
         if (loaded) {
-          var rockie = new tankette.Model(template.children[0], x, y, z, xr, yr, zr);
+          var rockie = new tankette.Model(model_, x, y, z, xr, yr, zr, 1.0);
           models[modelid] = rockie;
           scene.add(rockie.group);
-          console.log("Added model. " + modelid);
+          console.log("Added model type " + model_ + " with id: "  + modelid);
       } else {
           console.log("Model not loaded yet.");
       }

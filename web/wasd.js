@@ -11,7 +11,7 @@ var WASD = WASD = WASD || {};
 WASD.Controls = function(object , domElement) {
    // We are moving an object.  Possibly a camera but hopefully not,
    // a player.
-
+   
    // References to stuff:
    this.object = object;
    this.target = new THREE.Vector3(0, 0, 0);
@@ -22,7 +22,7 @@ WASD.Controls = function(object , domElement) {
    this.lookSpeed = 0.005;
    this.autoForward = false;
    this.activeLook = true;
-
+  
    // mouse and key states
    this.mouseX = 0;
    this.mouseY = 0;
@@ -34,8 +34,9 @@ WASD.Controls = function(object , domElement) {
    this.b2_down = false;
    this.b3_down = false;
    this.toggleCam = false;
+   this.toggleTurdle = false;
    this.toggleFire = false;
-
+   
    // mouse screen interface:
    this.numCellsX = 3;
    this.numCellsY = 3;
@@ -74,7 +75,6 @@ WASD.Controls = function(object , domElement) {
   this.onMouseDown = function(event) {
     if (!this.isDocument) {
       this.domElement.focus();
-
     }
     event.preventDefault();
     event.stopPropagation();
@@ -116,7 +116,7 @@ WASD.Controls = function(object , domElement) {
     // 
     //alert("Mother  " + this.mouseX + " of Mercy! " + this.mouseY);
   };
-
+    
   this.onMouseUp = function(event) {
     if (!this.isDocument) {
       this.domElement.focus();
@@ -137,10 +137,11 @@ WASD.Controls = function(object , domElement) {
     this.moveLeft = false;
     this.moveRight = false;
     this.toggleCam = false;
+    this.toggleTurdle = false;
     this.toggleFire = false;
   };
-  
- this.onMouseMove = function(event) {
+
+  this.onMouseMove = function(event) {
     if (this.isDocument) {
       this.mouseX = event.pageX - this.viewHalfX;
       this.mouseY = event.pageY - this.viewHalfY;
@@ -148,13 +149,13 @@ WASD.Controls = function(object , domElement) {
       this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
       this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
     }
-
+    
     this.xp = Math.floor((this.mouseX  + this.viewHalfX) / this.viewCellXSize);
     this.yp = Math.floor((this.mouseY  + this.viewHalfY) / this.viewCellYSize);
-  };
+  };  
 
 /*
-Key Code Table  32: spacebar.
+Key Code Table  32 | space
 |        backspace 8|     6 54|               v 86|            f3  114|
 |              tab 9|     7 55|               w 87|            f4  115|
 |           enter 13|     8 56|               x 88|            f5  116|
@@ -195,6 +196,8 @@ Key Code Table  32: spacebar.
       case 39: /*right*/
       case 68: /*D*/ this.moveRight = value; break;
       case 67: /*C*/ this.toggleCam = value; break;
+      case 84: /*T*/ this.toggleTurdle = value; break;
+      case 70: /*F*/
       case 32: /* */ this.toggleFire = value; break;
       default: break;
     }
@@ -209,6 +212,7 @@ Key Code Table  32: spacebar.
     //event.preventDefault();
     this.onKeyBool(event, false);
   };
+
 
   // update
   this.update = function(delta) {
@@ -226,7 +230,7 @@ Key Code Table  32: spacebar.
     if (this.moveRight) {
       this.object.MoveRight(delta);
     }*/
-
+     
   };
 
   // BINDS

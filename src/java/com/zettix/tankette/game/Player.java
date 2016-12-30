@@ -5,91 +5,75 @@
  */
 package com.zettix.tankette.game;
 
+import com.zettix.graphics.gjkj.hull.BoxHull;
+import com.zettix.graphics.gjkj.util.M4;
+import com.zettix.graphics.gjkj.util.V3;
+//import com.zettix.tankette.game.Hitbox;
 /**
  *
  * @author sean
  */
-public class Player extends Object3D {
-    public final double radius;
-    public double nearest;
-    public final double velocity;
-    public final double rotation_speed;
-    public final double[] hitbox = new double[6];
-    public boolean forward, back, left, right, moved, togglefire;
-    public int movecount;
-    public long shoot_timeout = 1000; // microseconds.
-    public long hitpoints = 1000;
+public class Player extends Model {
+    private double x, y, z, xr, yr, zr;
+    private String id;
+    public static long ONESEC = 1000000000l;
+    public boolean toggleturdle, togglefire;
+    public long shoot_timeout;
     
-    
-    public void ResetShootTimeout() {
-        shoot_timeout = 1000;
-    }
-    
-    public void MoveForward(double delta) {
-      double cosy = Math.cos(this.getYr());
-      double siny = Math.sin(this.getYr());
-      this.setX(getX() - delta * cosy * velocity);
-      this.setZ(getZ() + delta * siny * velocity);
-    }
-    public void MoveBackward(double delta) {
-      double cosy = Math.cos(this.getYr());
-      double siny = Math.sin(this.getYr());
-      this.setX(getX() + delta * cosy * velocity);
-      this.setZ(getZ() - delta * siny * velocity);  
-    }
-    
-    public void MoveLeft(double delta) {
-      setYr(getYr() + delta * rotation_speed);
-    }
-
-    public void MoveRight(double delta) {
-      setYr(getYr() - delta * rotation_speed);  
-    }
-    /**
-     * Start with a hitbox.
-     */
     public Player() {
-        radius = 3.0f;
-        hitbox[0] = 0.0f;
-        hitbox[1] = 6.0f;
-        hitbox[2] = -0.5f;
-        hitbox[3] = 0.5f;
-        hitbox[4] = -0.5f;
-        hitbox[5] = 0.5f;
+        
+        radius = 6.0f;
+        hitbox = new Hitbox(this);
+        // Current model, from tank.js:
+        //   this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
+        V3 dim = new V3(8.0, 4.0, 4.5);
+        M4 mover = new M4().Identity().Move(-4.0, .0, -2.25);
+        hitbox.boxHull = new BoxHull(dim);
+        hitbox.boxHull.TransformObjectSpace(mover);
+        
+        
         nearest = 0.0f;
-        velocity =  .2f;
-        rotation_speed = 0.1f;
+        velocity = .2f;
+        rotation_speed = 0.01f;
         forward = false;
         back = false;
         left = false;
         right = false;
         moved = false;
+        toggleturdle = false;
         togglefire = false;
         movecount = 0;
+        shoot_timeout = 0;
+        
     }
     
     // Transform 6 points (collision box) to player space
     // for axis-alighned tests.
     public void Invert(double[] points) {
         // first translate:
-        points[0] -= getX();
-        points[1] -= getX();
-        points[2] -= getY();
-        points[3] -= getY();
-        points[4] -= getZ();
-        points[5] -= getZ();
+        points[0] -= x;
+        points[1] -= x;
+        points[2] -= y;
+        points[3] -= y;
+        points[4] -= z;
+        points[5] -= z;
         // maybe z/y/x?
-        // TODO rotations.   
+        // TODO rotations.
+        
     }
         public void Transform(double[] points) {
         // first translate:
-        points[0] += getX();
-        points[1] += getX();
-        points[2] += getY();
-        points[3] += getY();
-        points[4] += getZ();
-        points[5] += getZ();
+        points[0] += x;
+        points[1] += x;
+        points[2] += y;
+        points[3] += y;
+        points[4] += z;
+        points[5] += z;
         // maybe z/y/x?
         // TODO rotations.
+    }
+        
+    public void ResetShootTimeout(long now) {
+        shoot_timeout = ONESEC + now;
     }
 }

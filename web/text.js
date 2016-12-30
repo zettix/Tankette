@@ -52,7 +52,7 @@ tankette.Text = function() {
     var mesh = new THREE.Object3D();
     mesh.matrixAutoUpdate = true;
     mesh.position.x = 0.0;
-    mesh.position.y = 7.0;
+    mesh.position.y = 10.0;
     mesh.position.z = 5.0;
     
     var font_loaded = false;

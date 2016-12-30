@@ -29,10 +29,12 @@ import javax.json.JsonReader;
 @ApplicationScoped
 @ServerEndpoint("/actions")
 public class SocketServer {
-
+    
+    private final Logger LOG = Logger.getLogger("SocketServer");
+    
     @Inject
     private GameHandler sessionHandler;
-
+    
     @OnOpen
     public void open(Session session) {
        InfoLog("Open!!ZZZZZZZZZZZ\n");
@@ -42,7 +44,7 @@ public class SocketServer {
     @OnClose
     public void close(Session session) {
         InfoLog("Close!! ZZZZZZZZZZ\n");
-        sessionHandler.removeSession(session);
+        sessionHandler.removeSession(session);  
     }
 
     @OnError
@@ -72,6 +74,7 @@ public class SocketServer {
                     p.back = jsonMessage.getBoolean("B");
                     p.left = jsonMessage.getBoolean("L");
                     p.right = jsonMessage.getBoolean("R");
+                    p.toggleturdle = jsonMessage.getBoolean("T");
                     p.togglefire = jsonMessage.getBoolean("A");
                     //sessionHandler.updatePlayerLocation(
                     //        sessionHandler.getPlayerById(playerid));
@@ -80,11 +83,12 @@ public class SocketServer {
                 default:
                     break;
             }
-
-        }
-    }
+            
+        }    
+    } 
     void InfoLog(String msg) {
-       Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE,
-               null, msg);
+       // LOG.warning(msg);
+       Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, 
+               null, msg); 
     }
 }

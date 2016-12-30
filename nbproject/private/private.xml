@@ -2,6 +2,17 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/modelmanager.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/turdlemanager.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/tank.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/turdles.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/main.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/src/java/com/zettix/tankette/server/GameHandler.java</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/websocket.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/playermanager.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/rocket.js</file>
+            <file>file:/home/sean/NetBeansProjects/Tankette/web/model.js</file>
+        </group>
     </open-files>
 </project-private>

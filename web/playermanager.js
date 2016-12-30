@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /* global playerlist */
 /* global THREE */
 /* global controls */
@@ -17,12 +18,12 @@ tankette.PlayerManager = function(model, scene) {
     var model_ = model;
     this.myself = THREE.Object3D();
     var self = this;
-
+    
     this.RegisterWithServer = function(playerid) {
       console.log("Checking registered player " + playerid);
       if (players.hasOwnProperty(playerid)) {
           myself = players[playerid];
-
+          
           console.log("I am : " + myself.group.position.x);
           if (controls === undefined) {
               console.log("Controls undefined!!!");
@@ -36,13 +37,13 @@ tankette.PlayerManager = function(model, scene) {
          }
       } else {
           console.log("Error! myself lost:" + playerid);
-      };
+      };   
     };
-
+    
     this.NumPlayers = function() {
         return Object.keys(players).length;
     };
-
+    
     this.GetPlayer = function(playerid) {
       if (players.hasOwnProperty(playerid)) {
         return players[playerid];
@@ -51,16 +52,16 @@ tankette.PlayerManager = function(model, scene) {
       }
       return null;
     };
-
+    
     this.GetPlayerIds = function() {
         // console.log("GetPlayerIds" + players.toString());
         var keylist = Object.keys(players);
         return keylist;
     };
-
+    
     this.AddPlayer = function(playerid, x, y, z, xr, yr, zr) {
         var rockie = new tankette.Tank(model_, x, y, z, xr, yr, zr);
-
+        
         players[playerid] = rockie;
         scene.add(rockie.group);
        console.log("Added player. " + playerid);
@@ -73,7 +74,7 @@ tankette.PlayerManager = function(model, scene) {
           console.log("Error! player not found:" + playerid);
       }
     };
-    
+      
     this.UpdatePlayer = function(playerid, x, y, z, xr, yr, zr, col) {
       if (players.hasOwnProperty(playerid)) {
           var p = this.GetPlayer(playerid);
@@ -92,52 +93,5 @@ tankette.PlayerManager = function(model, scene) {
           console.log("Error! Update player not found:" + playerid);
       }
       CamUpdate();
-    };
-    
-    this.HandleUpdateList = function(jsonlist) {
-        var tmp_players = this.GetPlayerIds();
-        var tmp_players_hash = {};
-        if (tmp_players === undefined) {
-            console.log("No players yet");
-        } else {
-          for (var i = 0; i < tmp_players.length; i += 1) {
-              tmp_players_hash[tmp_players[i]] = true;
-          }
-        }
-        var in_players = jsonlist;
-        // console.log("Parsing V1 message..." + in_players.length);
-        for (var i = 0; i < in_players.length; i += 1) {
-            // console.log("Player " + i);
-            var in_p = in_players[i];
-            if (tmp_players_hash.hasOwnProperty(in_p.id)) {
-                this.UpdatePlayer(
-                        in_p.id,
-                        parseFloat(in_p.x),
-                        parseFloat(in_p.y),
-                        parseFloat(in_p.z),
-                        parseFloat(in_p.xr),
-                        parseFloat(in_p.yr),
-                        parseFloat(in_p.zr),
-                        parseInt(in_p.col));
-                        
-                delete tmp_players_hash[in_p.id];
-            } else {  // new player
-                this.AddPlayer(
-                        in_p.id,
-                        parseFloat(in_p.x),
-                        parseFloat(in_p.y),
-                        parseFloat(in_p.z),
-                        parseFloat(in_p.xr),
-                        parseFloat(in_p.yr),
-                        parseFloat(in_p.zr),
-                        parseInt(in_p.col));
-            }
-        }
-        var players_to_delete = Object.keys(tmp_players_hash);
-        if (players_to_delete !== undefined) {
-            for (var i = 0; i < players_to_delete.length; i += 1) {
-                this.RemovePlayer(players_to_delete[i]); 
-            }
-        }  
     };
 };
