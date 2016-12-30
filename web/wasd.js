@@ -197,6 +197,7 @@ Key Code Table  32 | space
       case 68: /*D*/ this.moveRight = value; break;
       case 67: /*C*/ this.toggleCam = value; break;
       case 84: /*T*/ this.toggleTurdle = value; break;
+      case 70: /*F*/
       case 32: /* */ this.toggleFire = value; break;
       default: break;
     }

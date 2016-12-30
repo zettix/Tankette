@@ -13,7 +13,7 @@
 console.log("Websocket init");
 
 //var socket = new WebSocket("ws://zettix.com:8889/Tankette/actions");
-var socket = new WebSocket("ws://argo:8080/Tankette/actions");
+var socket = new WebSocket("ws://172.16.7.125:8080/Tankette/actions");
 socket.onmessage = onMessage;
 
 function onMessage(event) {
@@ -140,6 +140,52 @@ function onMessage(event) {
                        turdleManager.RemoveTurdle(turdles_to_delete[i]); 
                 }
             }
+            
+            // ROCKETS
+           var tmp_rockets = rocketManager.GetModelIds();
+           var tmp_rockets_hash = {};
+           if (tmp_rockets === undefined) {
+              console.log("No rockets yet");
+            } else { 
+              for (var i = 0; i < tmp_rockets.length; i += 1) {
+                  tmp_rockets_hash[tmp_rockets[i]] = true;
+              }
+            }
+            var in_rockets = mm.rocketlist;
+            if (in_rockets !== undefined) {
+                //console.log("Rockets: " + in_rockets.length);
+                for (var i = 0; i < in_rockets.length; i += 1) {
+                    var in_p = in_rockets[i];
+                    if (tmp_rockets_hash.hasOwnProperty(in_p.id)) {
+                        rocketManager.UpdateModel(
+                                in_p.id,
+                                parseFloat(in_p.x),
+                                parseFloat(in_p.y),
+                                parseFloat(in_p.z),
+                                parseFloat(in_p.xr),
+                                parseFloat(in_p.yr),
+                                parseFloat(in_p.zr));
+                        delete tmp_rockets_hash[in_p.id];
+                    } else {  // new rocket
+                      rocketManager.AddModel(
+                                in_p.id,
+                                parseFloat(in_p.x),
+                                parseFloat(in_p.y),
+                                parseFloat(in_p.z),
+                                parseFloat(in_p.xr),
+                                parseFloat(in_p.yr),
+                                parseFloat(in_p.zr));
+                    }
+                }
+            }   
+            var rockets_to_delete = Object.keys(tmp_rockets_hash);
+            if (rockets_to_delete !== undefined) {
+                for (var i = 0; i < rockets_to_delete.length; i += 1) {
+                       rocketManager.RemoveModel(rockets_to_delete[i]); 
+                }   
+            }
+            
+            // DOTS
             var in_dots = mm.dotlist;
             if (in_dots !== undefined) {
                 dotManager.RemoveDots();

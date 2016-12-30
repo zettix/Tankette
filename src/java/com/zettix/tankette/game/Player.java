@@ -8,71 +8,26 @@ package com.zettix.tankette.game;
 import com.zettix.graphics.gjkj.hull.BoxHull;
 import com.zettix.graphics.gjkj.util.M4;
 import com.zettix.graphics.gjkj.util.V3;
-import com.zettix.tankette.game.Hitbox;
+//import com.zettix.tankette.game.Hitbox;
 /**
  *
  * @author sean
  */
-public class Player {
+public class Player extends Model {
     private double x, y, z, xr, yr, zr;
     private String id;
+    public static long ONESEC = 1000000000l;
+    public boolean toggleturdle, togglefire;
+    public long shoot_timeout;
     
-    // collission detection
-    public final double radius;
-    public Hitbox hitbox;
-    public double nearest;
-    public final double velocity;
-    public final double rotation_speed;
-    public String getId() {return id;}
-    public double getX() { return x;}
-    public double getY() { return y;}
-    public double getZ() { return z;}
-    public double getXr() { return xr;}
-    public double getYr() { return yr;}
-    public double getZr() { return zr;}
-    public void setX(double f) {  this.x = f;}
-    public void setY(double f) {  this.y = f;}
-    public void setZ(double f) {  this.z = f;}
-    public void setXr(double f) {  this.xr = f;}
-    public void setYr(double f) {  this.yr = f;}
-    public void setZr(double f) {  this.zr = f;}
-    public void setId(String s) { this.id = s;}
-    public boolean forward, back, left, right, moved, toggleturdle, togglefire;
-    public int movecount;
-    public int shoot_timeout;
-    
-    
-    public void MoveForward(double delta) {
-      double cosy = Math.cos(yr);
-      double siny = Math.sin(yr);
-      x -= delta * cosy * velocity;
-      z += delta * siny * velocity;
-    }
-    public void MoveBackward(double delta) {
-      double cosy = Math.cos(yr);
-      double siny = Math.sin(yr);
-      x += delta * cosy * velocity;
-      z -= delta * siny * velocity;
-    }
-    
-    public void MoveLeft(double delta) {
-      yr += delta * rotation_speed;
-    }
-
-    public void MoveRight(double delta) {
-      yr -= delta * rotation_speed;
-    }
-    /**
-     * Start with a hit box.
-     */
     public Player() {
-        radius = 3.0f;
+        
+        radius = 6.0f;
         hitbox = new Hitbox(this);
-        // Current model, from rocket.js:
-        //   this.hitbox_geo = new THREE.BoxGeometry(6, 1.1, 1.1);
-        // 
-        V3 dim = new V3(6.1, 1.1, 1.1);
-        M4 mover = new M4().Identity().Move(-3.0, -0.6, -0.6);
+        // Current model, from tank.js:
+        //   this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
+        V3 dim = new V3(8.0, 4.0, 4.5);
+        M4 mover = new M4().Identity().Move(-4.0, .0, -2.25);
         hitbox.boxHull = new BoxHull(dim);
         hitbox.boxHull.TransformObjectSpace(mover);
         
@@ -89,6 +44,7 @@ public class Player {
         togglefire = false;
         movecount = 0;
         shoot_timeout = 0;
+        
     }
     
     // Transform 6 points (collision box) to player space
@@ -117,7 +73,7 @@ public class Player {
         // TODO rotations.
     }
         
-    public void ResetShootTimeout() {
-        shoot_timeout = 100;
+    public void ResetShootTimeout(long now) {
+        shoot_timeout = ONESEC + now;
     }
 }

@@ -14,8 +14,8 @@ import java.util.List;
  *
  * @author sean
  */
-public class ModelManager {
-    private final HashMap<String, Model> models;
+public class ModelManager <T> {
+    private final HashMap<String, T> models;
     
     private long serial = 0l;
     
@@ -29,15 +29,14 @@ public class ModelManager {
         return NF.format(serial++);
     }
         
-    public synchronized Model getModelById(String id) {
+    public synchronized T getModelById(String id) {
         if (models.containsKey(id)) {
             return models.get(id);
         }
         return null;
     }
 
-    public synchronized void addModel(Model p) {
-        String id = p.getId();
+    public synchronized void addModel(String id, T p) {
         if (models.containsKey(id)) {
             // TODO complain.
         } else {
@@ -62,7 +61,7 @@ public class ModelManager {
         } 
     }
 
-    public List getModelIdsAsList() {
+    public List<String> getModelIdsAsList() {
        return new ArrayList<>(models.keySet());
     }
 }

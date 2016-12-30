@@ -54,7 +54,7 @@ public class SocketServer {
 
     @OnMessage
     public void handleMessage(String message, Session session) {
-        InfoLog("Handle this! ZZZZZZZZZZZZZZZZZfo XXXXXXXXXXXX\n");
+        //InfoLog("Handle this! ZZZZZZZZZZZZZZZZZfo XXXXXXXXXXXX\n");
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = reader.readObject();
             String msg = jsonMessage.getString("msg_type");
@@ -87,7 +87,7 @@ public class SocketServer {
         }    
     } 
     void InfoLog(String msg) {
-        LOG.warning(msg);
+       // LOG.warning(msg);
        Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, 
                null, msg); 
     }

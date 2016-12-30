@@ -34,7 +34,7 @@ tankette.Rocket = function(model, x, y, z, xr, yr, zr) {
   var hitball = new THREE.Mesh(this.hitball_geo, tankette.RedWire);
   hitbox.position.x = -.0;
   this.group.add(hitbox);
-  // this.group.add(hitball);
+  this.group.add(hitball);
   this.HitMe = function() {
       hitball.material = tankette.YellowWire;
   };

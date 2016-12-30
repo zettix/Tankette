@@ -19,28 +19,28 @@ import java.util.Set;
  */
 public class HitboxHandler {
     
-    private final HashMap playerHitboxes = new HashMap<>();
+    private final HashMap<String, Hitbox> modelHitboxes = new HashMap<>();
     public Set<Dot> dots = new HashSet<>();
     
-    public void AddPlayer(Player p) {
+    public void AddModel(Model p) {
         String id = p.getId();
-        if (playerHitboxes.containsKey(id)) {
+        if (modelHitboxes.containsKey(id)) {
             // pass, log error if possible.
         } else {
-            playerHitboxes.put(p.getId(), p.hitbox);
+            modelHitboxes.put(p.getId(), p.hitbox);
         }
     }
     
     public String GetHits() {
         StringBuilder out = new StringBuilder();
-        Set keyset = playerHitboxes.keySet();
-        List keylist = new ArrayList(keyset);
+        Set keyset = modelHitboxes.keySet();
+        List<String> keylist = new ArrayList(keyset);
         int listsize = keylist.size();
         
         out.append("HitboxHandler: ");
         // for now clear since lists set up.
         for (int i = 0; i < listsize; i++) {
-            Hitbox h = (Hitbox) playerHitboxes.get(keylist.get(i));
+            Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
             out.append(i);
             out.append(" ");
             if (h.is_hit) {
@@ -52,18 +52,18 @@ public class HitboxHandler {
         return out.toString();
     }
 
-    public void DelPlayer(String id) {
-        if (playerHitboxes.containsKey(id)) {
-            playerHitboxes.remove(id);
+    public void DelModel(String id) {
+        if (modelHitboxes.containsKey(id)) {
+            modelHitboxes.remove(id);
         } else {
             // pass, log error if possible.
         }
     }
     
-    public boolean IsHit(Player p) {
+    public boolean IsHit(Model p) {
         String id = p.getId();
-        if (playerHitboxes.containsKey(id)) {
-            Hitbox h = (Hitbox) playerHitboxes.get(p.getId());
+        if (modelHitboxes.containsKey(id)) {
+            Hitbox h = (Hitbox) modelHitboxes.get(p.getId());
             return h.is_hit;
         } else {
             // pass, log error if possible.
@@ -76,8 +76,8 @@ public class HitboxHandler {
         // meaning this can get out of hand fast.  easiest is to have two
         // indexes into the map, but I have to put the keys into a list
         // first then go 1..n+2..n,
-        Set keyset = playerHitboxes.keySet();
-        List keylist = new ArrayList(keyset);
+        Set<String> keyset = modelHitboxes.keySet();
+        List<String> keylist = new ArrayList(keyset);
         int listsize = keylist.size();
         
         StringBuilder out = new StringBuilder();
@@ -86,11 +86,11 @@ public class HitboxHandler {
         dots.clear();
         // for now clear since lists set up.
         for (int i = 0; i < listsize; i++) {
-            Hitbox h = (Hitbox) playerHitboxes.get(keylist.get(i));
-            Player p = h.player;
-            M4 playerTransform = new M4().Identity().Move(p.getX(), p.getY(), p.getZ()).Rotate(0.0, -p.getYr(), 0.0);
+            Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
+            Model p = h.model;
+            M4 modelTransform = new M4().Identity().Move(p.getX(), p.getY(), p.getZ()).Rotate(0.0, -p.getYr(), 0.0);
             
-            h.boxHull.TransformWorldSpace(playerTransform);
+            h.boxHull.TransformWorldSpace(modelTransform);
             for (int xx = 0; xx < 8; xx++) {
                 V3 v = h.boxHull.GetCorner(xx);
                 Dot d = new Dot();
@@ -100,16 +100,16 @@ public class HitboxHandler {
                 dots.add(d);
             }
                     
-            // h.boxHull.TransformWorldSpace(playerTransform);
+            // h.boxHull.TransformWorldSpace(modelTransform);
             h.is_hit = false;
         }
         
         for (int i = 0; i < listsize - 1; i++) {
-            Hitbox h = (Hitbox) playerHitboxes.get(keylist.get(i));
+            Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
             for (int j = i + 1; j < listsize; j++) {
-                Hitbox h2 = (Hitbox) playerHitboxes.get(keylist.get(j));
-                Player p = h2.player;
-                Player pp = h.player;
+                Hitbox h2 = (Hitbox) modelHitboxes.get(keylist.get(j));
+                Model p = h2.model;
+                Model pp = h.model;
                 out.append("[ ");
                 out.append(i);
                 out.append(" p1: ");
@@ -129,7 +129,7 @@ public class HitboxHandler {
                     h2.is_hit = true;
                     out.append(" Hit!]");
                 }
-                 /*p = h.player;
+                 /*p = h.model;
                  if (h2.TestHitSphere(p)) {
                     // do stuff, maybe add who hit whom later.
                     h.is_hit = true;

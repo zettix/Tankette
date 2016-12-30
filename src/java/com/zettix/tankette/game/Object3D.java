@@ -10,7 +10,7 @@ package com.zettix.tankette.game;
  * @author sean
  */
 public class Object3D {
-    private double x, y, z, xr, yr, zr;
+    protected double x, y, z, xr, yr, zr;
     private String id;
     public String getId() {return id;}
     public double getX() { return x;}

@@ -47,7 +47,7 @@ spot1.position.set(-200, 100, -10);
 spot1.target.position.set(zerovec);
 spot1.castShadow = true;
 // TODO(sean): Which is correct?
-if (true) {
+if (false) {
   spot1.shadowMapWidth = 1024;
   spot1.shadowMapHeight = 1024;
   spot1.shadowCameraNear = 50;
@@ -74,18 +74,18 @@ var cube = new THREE.Mesh(boxgeo, redmat);
 cube.position.set(6, 0, -6);
 cube.castShadow = true;
 cube.receiveShadow = true;
-var planegeo = new THREE.PlaneGeometry(40, 40, 10, 10);
+//var planegeo = new THREE.PlaneGeometry(40, 40, 10, 10);
 var greenmat = new THREE.MeshLambertMaterial( {color: 0x22ff22});
-var plane = new THREE.Mesh(planegeo, greenmat);
-plane.rotation.x = -Math.PI * 0.5;
-plane.position.set(0, -3.5, 0);
-plane.castShadow = false;
-plane.receiveShadow = true;
+//var plane = new THREE.Mesh(planegeo, greenmat);
+//plane.rotation.x = -Math.PI * 0.5;
+//plane.position.set(0, -3.5, 0);
+//plane.castShadow = false;
+//plane.receiveShadow = true;
 
 scene.add(spot1);
 scene.add(terrain.group);
 scene.add(cube);
-scene.add(plane);
+// scene.add(plane);
 
 var controls = new WASD.Controls(undefined);
 controls.movementSpeed = 5;

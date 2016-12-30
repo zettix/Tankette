@@ -12,6 +12,10 @@ tankette.RedWire = new THREE.MeshBasicMaterial( {color: 0xff0000,
                                              wireframe: true});
 tankette.YellowWire = new THREE.MeshBasicMaterial( {color: 0xffff00,
                                              wireframe: true});
+tankette.PinkWire = new THREE.MeshBasicMaterial( {color: 0xff8000,
+                                             wireframe: true});
+tankette.OrangeWire = new THREE.MeshBasicMaterial( {color: 0x888800,
+                                             wireframe: true});
 
 tankette.Tank = function(model, x, y, z, xr, yr, zr) {
   this.x = x;
@@ -26,15 +30,16 @@ tankette.Tank = function(model, x, y, z, xr, yr, zr) {
   this.group.position.y = y;
   this.group.position.z = z;
   
-  this.hitbox_geo = new THREE.BoxGeometry(6, 1, 1);
-  this.hitball_geo = new THREE.SphereGeometry(3, 10, 7);
+  this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
+  this.hitball_geo = new THREE.SphereGeometry(7, 10, 7);
 
-  var hitbox = new THREE.Mesh(this.hitbox_geo, tankette.RedWire);
+  var hitbox = new THREE.Mesh(this.hitbox_geo, tankette.PinkWire);
   var hitball = new THREE.Mesh(this.hitball_geo, tankette.RedWire);
-  hitbox.position.x = -3.0;
-  // this.group.add(hitbox);
   
-  this.group.add(hitball);
+  hitbox.position.y = 2;
+   this.group.add(hitbox);
+  
+  //this.group.add(hitball);
   this.HitMe = function() {
       hitball.material = tankette.YellowWire;
   };
@@ -55,32 +60,46 @@ tankette.Tank = function(model, x, y, z, xr, yr, zr) {
   this.group.add(this.turret_rotator);
   this.turret_rotator.add(this.barrel_rotator);
 
-  var loader = new THREE.OBJMTLLoader();
   var group = this.group;
   var turret_rotator = this.turret_rotator;
   var barrel_rotator = this.barrel_rotator;
-  loader.load( "mdl/" + model + "body.obj", "mdl/" + model + "body.mtl",
-      function(object) {
-        object.castShadow = true;
-        object.receiveShadow = true;
-        object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
-        group.add(object); });
-  loader.load( "mdl/" + model + "turret.obj", "mdl/" + model + "turret.mtl",
-      function(object) {
-        object.castShadow = true;
-        object.receiveShadow = true;
-        object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
-        turret_rotator.add(object); });
-  loader.load( "mdl/" + model + "barrel.obj", "mdl/" + model + "barrel.mtl",
-      function(object) { 
-        object.castShadow = true;
-        object.receiveShadow = true;
-        object.position.y = -3.0; 
-        object.position.x = 2.0; 
-        object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
-        barrel_rotator.add(object);
-      }
-  );
+
+  var loaded = false;
+  var js_loaded = false;
+
+  var mloader = new THREE.MTLLoader();
+  var onProgress = function ( xhr ) {
+      if ( xhr.lengthComputable ) {
+      var percentComplete = xhr.loaded / xhr.total * 100;
+      console.log( Math.round(percentComplete, 2) + '% downloaded' );
+    }
+  };
+  var onError = function ( xhr ) { };
+  mloader.setPath('mdl/');
+  var superloader = function(model_in, pawpaw, xin, yin) {
+    mloader.load(model_in + ".mtl",
+      function(materials) {
+          materials.preload();
+          var objLoader = new THREE.OBJLoader();
+          objLoader.setMaterials(materials);
+          objLoader.setPath("mdl/");
+          objLoader.load(model_in + ".obj", function(object) {
+               object.castShadow = true;
+                object.receiveShadow = true;
+                object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
+                object.position.y = yin;
+                object.position.x = xin;
+                js_loaded = true;
+                loaded = true;
+                pawpaw.add(object);
+                }, onProgress, onError);
+        }
+      );
+   };   // superloader
+
+  superloader("T34body", group, 0.0, 0.0);
+  superloader("T34turret", turret_rotator, 0.0, 0.0);
+  superloader("T34barrel", barrel_rotator, 2.0, -3.0);
 
   this.AimTurret = function(deg) {
     turret_rotator.rotation.y = deg;

@@ -24,11 +24,26 @@ tankette.Turdle = function(model, x, y, z, xr, yr, zr, s) {
   this.group.scale.y = s;
   this.group.scale.z = s;
   
-  var loader = new THREE.OBJMTLLoader();
   var group = this.group;
-  //loader.load( "http://www.zettix.com/sean/js/3d/tank-model-2/tank-move/mdl/" + model + ".obj", "http://www.zettix.com/sean/js/3d/tank-model-2/tank-move/mdl/" + model + ".mtl",
-  loader.load( "" + model + ".obj", "" + model + ".mtl",
-      function(object) {
+  var loaded = false;
+  var js_loaded = false;
+
+  var mloader = new THREE.MTLLoader();
+  var onProgress = function ( xhr ) {
+   if ( xhr.lengthComputable ) {
+      var percentComplete = xhr.loaded / xhr.total * 100;
+      console.log( Math.round(percentComplete, 2) + '% downloaded' );
+      }
+  };
+  var onError = function ( xhr ) { };
+  mloader.setPath('mdl/');
+  mloader.load(model + ".mtl",
+    function(materials) {
+        materials.preload();
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials(materials);
+        objLoader.setPath("mdl/");
+        objLoader.load(model + ".obj", function(object) {
         object.castShadow = true;
         object.receiveShadow = true;
         // Object.positon = relative to group.
@@ -40,10 +55,12 @@ tankette.Turdle = function(model, x, y, z, xr, yr, zr, s) {
         object.rotation.z = Math.PI * 0.5;
         object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
         group.add(object);
-     });
-     
+                js_loaded = true;
+                loaded = true;
+          }, onProgress, onError);
+        }
+      );
   this.group.rotation.x = xr;
   this.group.rotation.y = yr;
   this.group.rotation.z = zr;
-
 };
