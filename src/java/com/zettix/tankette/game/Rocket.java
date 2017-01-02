@@ -27,7 +27,6 @@ public class Rocket extends Model {
         M4 mover = new M4().Identity().Move(-3.0, -0.6, -0.6);
         hitbox.boxHull = new BoxHull(dim);
         hitbox.boxHull.TransformObjectSpace(mover);
-        nearest = 0.0f;
         velocity = .002f;
         rotation_speed = 0.01f;
         forward = true;

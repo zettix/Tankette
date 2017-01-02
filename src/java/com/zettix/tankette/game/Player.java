@@ -14,7 +14,6 @@ import com.zettix.graphics.gjkj.util.V3;
  * @author sean
  */
 public class Player extends Model {
-    private double x, y, z, xr, yr, zr;
     private String id;
     public static long ONESEC = 1000000000l;
     public boolean toggleturdle, togglefire;
@@ -22,7 +21,7 @@ public class Player extends Model {
     public int hitpoints = 100;
     
     public Player() {
-        
+        setCollider(Collider.TANK);
         radius = 6.0f;
         hitbox = new Hitbox(this);
         // Current model, from tank.js:
@@ -33,7 +32,6 @@ public class Player extends Model {
         hitbox.boxHull.TransformObjectSpace(mover);
         
         
-        nearest = 0.0f;
         velocity = .2f;
         rotation_speed = 0.01f;
         forward = false;

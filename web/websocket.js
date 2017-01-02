@@ -228,7 +228,8 @@ function onMessage(event) {
                                 id,
                                 parseFloat(in_p[1]),
                                 parseFloat(in_p[2]),
-                                parseFloat(in_p[3]), 0, 0, 0, 1);
+                                parseFloat(in_p[3]), 0, 0, 0, 
+                                parseFloat(in_p[4]));
                         delete tmp_explosions_hash[id];
                     } else {  // new explosion
                         //console.log("Adding Explosion: " + id);
@@ -236,7 +237,8 @@ function onMessage(event) {
                                 id,
                                 parseFloat(in_p[1]),
                                 parseFloat(in_p[2]),
-                                parseFloat(in_p[3]), 0, 0, 0, 1);
+                                parseFloat(in_p[3]), 0, 0, 0, 
+                                parseFloat(in_p[4]));
                     }
                 }
             }   
