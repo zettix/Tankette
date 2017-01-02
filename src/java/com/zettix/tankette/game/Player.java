@@ -19,6 +19,7 @@ public class Player extends Model {
     public static long ONESEC = 1000000000l;
     public boolean toggleturdle, togglefire;
     public long shoot_timeout;
+    public int hitpoints = 100;
     
     public Player() {
         

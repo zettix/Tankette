@@ -20,7 +20,7 @@ tankette.DotManager = function(model, scene) {
     this.self = this;
     this.scene = scene;
     
-    this.ball_mat = new THREE.MeshLambertMaterial( {color: 0x554492});
+    this.ball_mat = new THREE.MeshLambertMaterial( {color: 0xAA44AA});
     this.ball_geo = new THREE.SphereGeometry(0.1, 5, 7);
     
     this.AddDot = function(x, y, z) {

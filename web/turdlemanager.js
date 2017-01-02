@@ -28,7 +28,7 @@ tankette.TurdleManager = function(model, scene) {
     };
     
     this.NumTurdles = function() {
-        return Object.keys(players);
+        return Object.keys(players).length;
     };
     
     

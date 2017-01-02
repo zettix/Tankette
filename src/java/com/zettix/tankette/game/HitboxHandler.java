@@ -102,39 +102,47 @@ public class HitboxHandler {
                     
             // h.boxHull.TransformWorldSpace(modelTransform);
             h.is_hit = false;
+            h.ClearHits();
         }
         
         for (int i = 0; i < listsize - 1; i++) {
-            Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
-            for (int j = i + 1; j < listsize; j++) {
-                Hitbox h2 = (Hitbox) modelHitboxes.get(keylist.get(j));
-                Model p = h2.model;
-                Model pp = h.model;
-                out.append("[ ");
-                out.append(i);
-                out.append(" p1: ");
-                out.append(p.getId());
-                out.append(" ~");
-                out.append(j);
-                out.append(" p2: ");
-                out.append(pp.getId());
+            try {
+                Hitbox h1 = (Hitbox) modelHitboxes.get(keylist.get(i));
+                for (int j = i + 1; j < listsize; j++) {
+                    Hitbox h2 = (Hitbox) modelHitboxes.get(keylist.get(j));
+                    Model p1 = h1.model;
+                    Model p2 = h2.model;
+                    out.append("[ ");
+                    out.append(i);
+                    out.append(" p1: ");
+                    out.append(p1.getId());
+                    out.append(" ~");
+                    out.append(j);
+                    out.append(" p2: ");
+                    out.append(p2.getId());
 
-                // if (0.0f < h.TestHitSphere(p)) {
-                if (!h.TestHit(p)) {
-                    //pass
-                    out.append(" Miss] ");
-                } else {
-                    // do stuff, maybe add who hit whom later.
-                    h.is_hit = true;
-                    h2.is_hit = true;
-                    out.append(" Hit!]");
+                    // if (0.0f < h.TestHitSphere(p)) {
+                    if (!h1.TestHit(p2)) {
+                        //pass
+                        out.append(" Miss] ");
+                    } else {
+                        // do stuff, maybe add who hit whom later.
+                        h2.AddHit(p1);
+                        h1.AddHit(p2);
+                        h1.is_hit = true;
+                        h2.is_hit = true;
+                        out.append(" Hit!]");
+                    }
+                    /*p = h.model;
+                    if (h2.TestHitSphere(p)) {
+                        // do stuff, maybe add who hit whom later.
+                        h.is_hit = true;
+                        h2.is_hit = true;
+                    } */
                 }
-                 /*p = h.model;
-                 if (h2.TestHitSphere(p)) {
-                    // do stuff, maybe add who hit whom later.
-                    h.is_hit = true;
-                    h2.is_hit = true;
-                } */
+            } catch (java.lang.NullPointerException ex) {
+                // pass.  this is simultanious access, somehow this thread
+                // was running while another was.  The timer?
             }
         }
         return out.toString();

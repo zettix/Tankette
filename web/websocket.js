@@ -7,6 +7,7 @@
 /* global playerManager */
 /* global packet_length */
 /* global rocketManager */
+/* global explosionManager */
 /* global turdleManager */
 /* global dotManager */
 
@@ -47,6 +48,7 @@ function onMessage(event) {
     } else if (msg_type === "log") {
         console.log("Log:" + mm.log);
     } else if (msg_type === "V1") {
+        websocket_packet_txt = mm.toString();
         var tmp_players = playerManager.GetPlayerIds();
         var tmp_players_hash = {};
         if (tmp_players === undefined) {
@@ -157,6 +159,8 @@ function onMessage(event) {
                 for (var i = 0; i < in_rockets.length; i += 1) {
                     var in_p = in_rockets[i];
                     if (tmp_rockets_hash.hasOwnProperty(in_p.id)) {
+                        websocket_packet_txt = in_p.x;
+
                         rocketManager.UpdateModel(
                                 in_p.id,
                                 parseFloat(in_p.x),
@@ -196,6 +200,53 @@ function onMessage(event) {
                             parseFloat(in_p.y),
                             parseFloat(in_p.z));
                 }
+            }
+            
+            // EXPLOSIONS
+          var tmp_explosions = explosionManager.GetModelIds();
+          // console.log("Explosion ids: " + tmp_explosions);
+          // console.log("Explosions: " + tmp_explosions.length);
+
+           var tmp_explosions_hash = {};
+           if (tmp_explosions === undefined) {
+              console.log("No explosions yet");
+            } else { 
+              for (var i = 0; i < tmp_explosions.length; i += 1) {
+                  tmp_explosions_hash[tmp_explosions[i]] = true;
+              }
+            }
+            var in_explosions = mm.explosions;
+            if (in_explosions !== undefined) {
+                //console.log("Rockets: " + in_rockets.length);
+                for (var i = 0; i < in_explosions.length; i += 1) {
+                    var in_p = in_explosions[i];
+                    var id = in_p[0];
+                    //console.log("Incoming Explosion: " + id);
+                    if (tmp_explosions_hash.hasOwnProperty(id)) {
+                        //console.log("Updating explosion: " + id);
+                        explosionManager.UpdateModel(
+                                id,
+                                parseFloat(in_p[1]),
+                                parseFloat(in_p[2]),
+                                parseFloat(in_p[3]), 0, 0, 0, 1);
+                        delete tmp_explosions_hash[id];
+                    } else {  // new explosion
+                        //console.log("Adding Explosion: " + id);
+                        explosionManager.AddModel(
+                                id,
+                                parseFloat(in_p[1]),
+                                parseFloat(in_p[2]),
+                                parseFloat(in_p[3]), 0, 0, 0, 1);
+                    }
+                }
+            }   
+            var explosions_to_delete = Object.keys(tmp_explosions_hash);
+            if (explosions_to_delete !== undefined) {
+                for (var i = 0; i < explosions_to_delete.length; i += 1) {
+                       //console.log("Deleteting Explosion: " + explosions_to_delete[i]);
+
+                       explosionManager.RemoveModel(explosions_to_delete[i]); 
+                }   
             }
         //}
     } // if v1
