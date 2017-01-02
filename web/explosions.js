@@ -5,8 +5,8 @@
  */
 /* global THREE */
 
-var tankette = tankette = tankette || {};
 
+var tankette = tankette = tankette || {};
 tankette.RedWire = new THREE.MeshBasicMaterial( {color: 0xff0000,
                                              wireframe: true});
 tankette.YellowWire = new THREE.MeshBasicMaterial( {color: 0xffff00,
@@ -15,7 +15,7 @@ tankette.PinkWire = new THREE.MeshBasicMaterial( {color: 0xff8000,
                                              wireframe: true});
 tankette.OrangeWire = new THREE.MeshBasicMaterial( {color: 0x888800,
                                              wireframe: true});
-tankette.Rocket = function(model_name, x, y, z, xr, yr, zr, s) {
+tankette.Explosion = function(model_name, x, y, z, xr, yr, zr, s) {
   this.x = x;
   this.y = y;
   this.z = z;
@@ -27,28 +27,20 @@ tankette.Rocket = function(model_name, x, y, z, xr, yr, zr, s) {
   this.group.position.x = x;
   this.group.position.y = y;
   this.group.position.z = z;
-  
+  var group = this.group;  // to be local and thus included in load() callback.
+
+    
   // Hitboxes:
-  this.hitbox_geo = new THREE.BoxGeometry(6, 1.1, 1.1);
-  this.hitball_geo = new THREE.SphereGeometry(3, 10, 7);  
+  this.hitbox_geo = new THREE.BoxGeometry(6, 5.1, 5.1);
+  this.hitball_geo = new THREE.SphereGeometry(5, 10, 7);  
   var hitbox = new THREE.Mesh(this.hitbox_geo, tankette.PinkWire);
   var hitball = new THREE.Mesh(this.hitball_geo, tankette.RedWire);
   hitbox.position.x = -.0;
   this.group.add(hitbox);
-  // this.group.add(hitball);
-  this.HitMe = function() {
-      hitball.material = tankette.YellowWire;
-  };
+  this.group.add(hitball);
   
-  this.MissMe = function() {
-      hitball.material = tankette.RedWire;
-  };
-  
-  // end Hitboxes.
-
-  var group = this.group;
   var mloader = new THREE.MTLLoader();
-  
+  console.log("Hello, I'm an explosion!  Boom! " + model_name);
   var onProgress = function ( xhr ) {
    if ( xhr.lengthComputable ) {
       var percentComplete = xhr.loaded / xhr.total * 100;
@@ -64,20 +56,18 @@ tankette.Rocket = function(model_name, x, y, z, xr, yr, zr, s) {
         objLoader.setMaterials(materials);
         objLoader.setPath("mdl/");
         objLoader.load(model_name + ".obj", function(object) {
-        object.castShadow = true;
-        object.receiveShadow = true;
         // Object.positon = relative to group.
-        object.position.x = 3.0;  // rocket specific.  Really need to instance..
+        // TODO(sean): disable lighting.
+        object.position.x = 0.0;  
         object.position.y = 0.0;
         object.position.z = 0.0;
-
         // Object.positon = relative to group.
-        object.scale.x = 2.0;
-        object.scale.y = 2.0;
-        object.scale.z = 2.0;
+        object.scale.x = 10.0;  // animate explosion with scale and rotate.
+        object.scale.y = 10.0;
+        object.scale.z = 10.0;
         //object.rotation.y = -Math.PI * 0.5;
-        object.rotation.x = Math.PI * 0.5;
-        object.rotation.z = Math.PI * 0.5;
+        // object.rotation.x = Math.PI * 0.5;
+        // object.rotation.z = Math.PI * 0.5;
         object.traverse( function( node ) { if ( node instanceof THREE.Mesh ) { node.receiveShadow = true; node.castShadow = true; } } );
         group.add(object);
                 js_loaded = true;
@@ -85,12 +75,10 @@ tankette.Rocket = function(model_name, x, y, z, xr, yr, zr, s) {
           }, onProgress, onError);
         }
       );
-     
   this.group.rotation.x = xr;
   this.group.rotation.y = yr;
   this.group.rotation.z = zr;
-       
-   
+     
   this.MoveForward = function(delta) {
     var cosy = Math.cos(this.group.rotation.y);
     var siny = Math.sin(this.group.rotation.y);
@@ -117,3 +105,5 @@ tankette.Rocket = function(model_name, x, y, z, xr, yr, zr, s) {
   // TODO: (sean) hitboxes and explosions, thrust.
   return this;
 };
+
+

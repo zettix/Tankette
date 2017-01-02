@@ -13,10 +13,11 @@ var tankette = tankette = tankette || {};
 
 console.log("ModelManager Init");
 
-tankette.ModelManager = function(model, scene) {
-    var models = {};
-    var model_ = model;
+tankette.ModelManager = function(model_name, model_fun, scene) {
+    var models = {};   // model_id : model object
+    var model_ = model_name;
     var self = this;
+    var scene_ = scene;
     
     var loaded = true;
     
@@ -41,9 +42,12 @@ tankette.ModelManager = function(model, scene) {
 
     this.AddModel = function(modelid, x, y, z, xr, yr, zr) {
         if (loaded) {
-          var rockie = new tankette.Model(model_, x, y, z, xr, yr, zr, 1.0);
-          models[modelid] = rockie;
-          scene.add(rockie.group);
+          if (models.hasOwnProperty(modelid)) {
+              console.log("NOOOOOOOOOOOOO We HAVE " + modelid);
+          }
+          var mymodel = new model_fun(model_, x, y, z, xr, yr, zr, 1.0);
+          models[modelid] = mymodel;
+          scene_.add(mymodel.group);
           console.log("Added model type " + model_ + " with id: "  + modelid);
       } else {
           console.log("Model not loaded yet.");
@@ -113,8 +117,20 @@ tankette.ModelManager = function(model, scene) {
         var models_to_delete = Object.keys(tmp_models_hash);
         if (models_to_delete !== undefined) {
             for (var i = 0; i < models_to_delete.length; i += 1) {
-                this.RemovePlayer(models_to_delete[i]); 
+                this.RemoveModel(models_to_delete[i]); 
             }
         }
+    };
+    this.Print = function() {
+        var out = "Models: ";
+        for (var s in models) {
+          if (models.hasOwnProperty(s)) {
+              var m = models[s];
+              out += "m:" + s + " x:" + m.x + "y:" + m.y + "z:" + m.z;
+          } else {
+              out += "no property: " + s;
+          }
+        }
+        return out;
     };
 };

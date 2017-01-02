@@ -6,6 +6,7 @@
 package com.zettix.tankette.server;
 
 import com.zettix.tankette.game.Dot;
+import com.zettix.tankette.game.Explosion;
 import com.zettix.tankette.game.HitboxHandler;
 import com.zettix.tankette.game.Model;
 import com.zettix.tankette.game.ModelManager;
@@ -43,6 +44,7 @@ public class GameHandler {
     private static final PlayerManager PLAYERMANAGER = new PlayerManager();
     private static final ModelManager<Rocket> ROCKETMANAGER = new ModelManager<>();
     private static final Set<Turdle> TURDLES = new HashSet<>();
+    private static final ModelManager<Explosion> EXPLOSIONS = new ModelManager<>();
     
     private long now;
     private final Timer timer = new Timer();
@@ -56,6 +58,7 @@ public class GameHandler {
     private long nano_origin = System.nanoTime();
     int turdle_serial = 0;
     int rocket_serial = 0;
+    int explosion_serial = 0;
     long deltatime = 1l;
     private final double timescaler = 0.0000001;
     private static final Logger LOG = Logger.getLogger(
@@ -103,6 +106,13 @@ public class GameHandler {
                    ROCKETMANAGER.addModel(p.getId(), p);
                    InfoLog("Adding test rocket! XYZ: " + p.getX() + " " + p.getY() + p.getZ() + p.getId());
 
+                   Explosion e = new Explosion();
+                   serial = explosion_serial++;
+                   e.setId("Test Explosion " + serial);
+                   e.setX(21.0 + serial * 3.0);
+                   e.setY(1.0 + serial * 3.0);
+                   e.setZ(11.0 + serial * 3.0);
+                   EXPLOSIONS.addModel(e.getId(), e);
                }
            }
            doneloop = true;
@@ -232,8 +242,9 @@ public class GameHandler {
         }   
     }
 
-    public void removeRocket(Rocket t) {        
-       ROCKETMANAGER.delModel(t.getId());
+    public void removeRocket(String id) {        
+       ROCKETMANAGER.delModel(id);
+       hitboxHandler.DelModel(id);
     } 
     
     // TODO: convert sessions to hashmap.    
@@ -261,8 +272,9 @@ public class GameHandler {
     
     private synchronized JsonObject createGamePacket() {
         JsonProvider provider = JsonProvider.provider();
-        JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
         
+        JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
+       
         // PLAYERS
         List players = PLAYERMANAGER.getPlayerIdsAsList();
         for (Iterator it = players.iterator(); it.hasNext();) {
@@ -285,7 +297,6 @@ public class GameHandler {
               .build();
             jplayerlist.add(pj);
         }
-        
         // ROCKETS
         JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
         List<String> rockets = ROCKETMANAGER.getModelIdsAsList();
@@ -328,6 +339,18 @@ public class GameHandler {
               .build();
             jdotlist.add(pj);
         }
+        
+        JsonArrayBuilder jexplosionlist = provider.createArrayBuilder();
+        for (String id: EXPLOSIONS.getModelIdsAsList()) {
+            Explosion p = EXPLOSIONS.getModelById(id);
+            JsonArrayBuilder pj = (JsonArrayBuilder) provider.createArrayBuilder()
+              .add(p.getId())
+              .add(p.getX())
+              .add(p.getY())
+              .add(p.getZ());
+              //.build();
+            jexplosionlist.add(pj);
+        }
        
         JsonObject packet = provider.createObjectBuilder()
                 .add("msg_type", "V1")
@@ -335,6 +358,7 @@ public class GameHandler {
                 .add("dotlist", jdotlist)
                 .add("turdlelist", jturdlelist)
                 .add("rocketlist", jrocketlist)
+                .add("explosions", jexplosionlist)
                 .build();
         return packet;
     }
@@ -425,7 +449,7 @@ public class GameHandler {
                 removals.add(s);
             }
         }
-        removals.forEach(k->ROCKETMANAGER.delModel(k));
+        removals.forEach(k->removeRocket(k));
     }
 
     private void updatePlayers() {
@@ -450,11 +474,14 @@ public class GameHandler {
                 MoveUndo(p);
             }
         }
-        updateTurdles();
-        updateRockets();
-                
-        // Network
-        sendToAllConnectedSessions(createGamePacket());
+        try {
+            updateTurdles();
+            updateRockets();
+            // Network
+            sendToAllConnectedSessions(createGamePacket());
+        } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix concurrent mods! " + ex.toString());
+        }
         /*
         for (Player p : players) {
             String id = p.getId();
@@ -483,7 +510,11 @@ public class GameHandler {
     }
 
     private void DetectCollisions() {
-        hitboxHandler.DetectCollisions();
+        try {
+          hitboxHandler.DetectCollisions();
+        } catch (java.lang.NullPointerException ex) {
+          InfoLog("Null Pointer Exception" + ex.toString());
+        }
     }
 
     private void MoveUndo(Player p) {
@@ -505,9 +536,9 @@ public class GameHandler {
 
     private void sendToAllConnectedSessions(JsonObject message) {
         // TODO: does this have to ack, they are TCP connections?
-        for (Session session : sessions.values()) {
+        sessions.values().stream().forEach((session) -> {
             sendToSession(session, message);
-        }
+        });
     }
 
     public void LogHits() {

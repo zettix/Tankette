@@ -10,6 +10,10 @@ import java.util.Map;
 import com.zettix.graphics.gjkj.GJKIntersect;
 import com.zettix.graphics.gjkj.util.V3;
 import com.zettix.graphics.gjkj.hull.BoxHull;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -19,6 +23,7 @@ class Hitbox {
     
     // public final Map<String, Model> models = new HashMap<>();
     public boolean is_hit = false;
+    private Set<Model> hitby = new HashSet<>();
     public final Model model;
     public BoxHull boxHull;
     
@@ -28,6 +33,18 @@ class Hitbox {
 
     Hitbox() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public void AddHit(Model m) {
+        hitby.add(m);
+    }
+    
+    public void ClearHits() {
+        hitby.clear();
+    }
+    
+    public List<Model> GetHits() {
+        return new ArrayList(hitby);
     }
     
     public double TestHitCylinder(Model p) {

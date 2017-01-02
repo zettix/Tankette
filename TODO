@@ -1,0 +1,41 @@
+Important:
+Subclass model/rocket/explosion/other model stuff in javascript.
+I hate to keep writing managers.  Just modelmanager with other data.
+
+Expland Collision detection:
+  1) rockets/tanks
+  2) rockets/rockets
+  3) tanks/tanks
+  4) more models: explosions.
+
+Collision categories:
+Collisions between object are obvious, I guess I need a matrix.
+
+ MATRIX      | missile      | tank         | static model |
+-------------+--------------+--------------+--------------+
+missile      | explosion    | explosion    +  explosion   +
+tank         | explosion    | bump         +  bump        +
+static model | explosion    | bump         +  nothing     +
+
+I want destructible and indestructible parts of the landscape.
+So I need targets.  Let's make a house 
+
+Explosion plan:
+  0) Base on rocket1opt as a simple model.
+  1) Create explosion as shell in blender.
+  1.1) Texture, export texture.
+  2) Load static explosion in viewer.
+  3) Add player key explosions.
+  4) Lifetime them, they are cosmetic more or less.
+  5) Test of spherical hitbox.
+
+
+Network:
+  Change json object "x: #.##" to JsonArrayBuilder, possible fewer bytes for native format, double is 8 bytes.  "zr:-9.32" is 8 bytes also.
+Experimenting with explosions.  obj[i] and opb.a can fail silently in javascript!
+
+
+A rocket is about 400 bytes...
+(8 dots xyz, and 1 pos xyz, 1 rot xyz = 30 numbers.  times 8 = 240 bytes.
+if we could dumb down to 4 bytes, then we get 120 bytes/rocket.  and really
+without the dots, down to 48 bytes.

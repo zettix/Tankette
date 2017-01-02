@@ -62,7 +62,7 @@ public class SocketServer {
                 case "but":
                     String playerid = session.getId();
                     Player p = sessionHandler.getPlayerById(playerid);
-                    /*
+                    /*  Do not trust the player to send position info.
                     p.setX((Double.valueOf(jsonMessage.getString("x"))));
                     p.setY((Double.valueOf(jsonMessage.getString("y"))));
                     p.setZ((Double.valueOf(jsonMessage.getString("z"))));
@@ -84,7 +84,9 @@ public class SocketServer {
                     break;
             }
             
-        }    
+        } catch (org.jboss.weld.context.ContextNotActiveException ex) {
+            InfoLog("Bad connection: " + ex.toString());
+        }   
     } 
     void InfoLog(String msg) {
        // LOG.warning(msg);

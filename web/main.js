@@ -21,7 +21,8 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
 console.log("Main init");
 var playerManager = new tankette.PlayerManager("T34", scene);
-var rocketManager = new tankette.ModelManager("rocket1opt", scene);
+var rocketManager = new tankette.ModelManager("rocket1opt", tankette.Rocket, scene);
+var explosionManager = new tankette.ModelManager("ballexplosion", tankette.Explosion, scene);
 console.log("playerManger and rocketManager are done");
 var turdleManager = new tankette.TurdleManager("rocket1opt", scene);
 var dotManager = new tankette.DotManager("none", scene);
@@ -64,10 +65,6 @@ if (false) {
 
 var terrain = new tankette.Terrain();
 
-// Rockets
-//var rocket1 = new tankette.Rocket("rocket1opt", 20, 0.3, 20);
-//scene.add(rocket1.group);
-//test
 var boxgeo = new THREE.BoxGeometry(2, 2, 2);
 var redmat = new THREE.MeshLambertMaterial( {color: 0xff0000});
 var cube = new THREE.Mesh(boxgeo, redmat);
@@ -76,16 +73,10 @@ cube.castShadow = true;
 cube.receiveShadow = true;
 //var planegeo = new THREE.PlaneGeometry(40, 40, 10, 10);
 var greenmat = new THREE.MeshLambertMaterial( {color: 0x22ff22});
-//var plane = new THREE.Mesh(planegeo, greenmat);
-//plane.rotation.x = -Math.PI * 0.5;
-//plane.position.set(0, -3.5, 0);
-//plane.castShadow = false;
-//plane.receiveShadow = true;
 
 scene.add(spot1);
 scene.add(terrain.group);
 scene.add(cube);
-// scene.add(plane);
 
 var controls = new WASD.Controls(undefined);
 controls.movementSpeed = 5;
@@ -101,6 +92,7 @@ var skybox = new tankette.SkyBox(scene);
 var textout = new tankette.Text();
 textout.loadFont();
 
+var websocket_packet_txt = "";
 
 
 var pushBox = function() {
@@ -110,7 +102,7 @@ var pushBox = function() {
 var Update = function() {
   var update_delta = clock.getDelta();
   update_timeout += update_delta;
-  if (update_timeout > 30) {
+  if (update_timeout > 5) {
       update_timeout = 0;
       console.log("Rockets: " + rocketManager.NumModels());
       // textout.erase();
@@ -118,6 +110,9 @@ var Update = function() {
       textout.generateGeometry();
       console.log("Players: " + playerManager.NumPlayers());
       console.log("Turdles: " + turdleManager.NumTurdles());
+      console.log("Explosions:" + explosionManager.NumModels());
+      console.log("Explosions " + explosionManager.Print());
+      console.log("Packet: " + websocket_packet_txt);
       pushBox();
   }
   //controls.update(update_delta);
