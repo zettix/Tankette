@@ -64,7 +64,7 @@ public class GameHandler {
     private static final Logger LOG = Logger.getLogger(
                 GameHandler.class.getName());
     private boolean testrocket = false;
-    private double delta;
+    private double delta;  // change in ms.
 
     private static final DecimalFormat DF = new DecimalFormat("#.##");
     
@@ -105,7 +105,8 @@ public class GameHandler {
                    ROCKETMANAGER.addModel(p.getId(), p);
                    InfoLog("Adding test rocket! XYZ: " + p.getX() + " " + p.getY() + p.getZ() + p.getId());
 
-                   Explosion e = new Explosion();
+                   long secs =  deltatime * 1000000000l;
+                   Explosion e = new Explosion(now, secs, 10.0);
                    serial = explosion_serial++;
                    e.setId("Test Explosion " + serial);
                    e.setX(21.0 + serial * 3.0);
@@ -162,10 +163,6 @@ public class GameHandler {
         }
     }
     public synchronized void removeSession(Session session) {
-        /*  at org.jboss.weld.bean.proxy.ProxyMethodHandler.getInstance(ProxyMethodHandler.java:125)
-  at com.zettix.rocketsocket.RocketHandler$Proxy$_$$_WeldClientProxy.removeSession(Unknown Source)
-  at com.zettix.rocketsocket.SocketServer.close(SocketServer.java:45)
-        */
         String playerid = session.getId();
         removePlayer(playerid);
         sessions.remove(playerid);
@@ -439,20 +436,11 @@ public class GameHandler {
     }
     
     private void updateRockets() {
-        List<String> removals = new ArrayList<>();
-        List<String> allrockets = ROCKETMANAGER.getModelIdsAsList();
-        for (String s : allrockets) {
-            //InfoLog("Processing rocket: " + s);
-            //for (Iterator it = TURDLE.iterator(); it.hasNext();) {
-            Rocket t;
-            t = (Rocket) ROCKETMANAGER.getModelById(s);
-            t.age++;
-            t.MoveForward(delta);
-            if (t.age > 10000) {
-                removals.add(s);
-            }
-        }
-        removals.forEach(k->removeRocket(k));
+        ROCKETMANAGER.updateModels(now);
+    }
+    
+    private void updateExplosions() {
+        EXPLOSIONS.updateModels(now);
     }
 
     private void updatePlayers() {
@@ -480,6 +468,7 @@ public class GameHandler {
         try {
             updateTurdles();
             updateRockets();
+            updateExplosions();
             // Network
             sendToAllConnectedSessions(createGamePacket());
         } catch(java.util.ConcurrentModificationException ex) {

@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author sean
  */
-public class ModelManager <T> {
+public class ModelManager <T extends ModelInterface & Object3dInterface> {
     private final HashMap<String, T> models;
     
     private long serial = 0l;
@@ -59,6 +59,16 @@ public class ModelManager <T> {
         } else {
             // TODO: complain.
         } 
+    }
+    
+    public synchronized void updateModels(long now) {
+        for(T t : models.values()) {
+            t.Update(now);
+            if (t.isDone()) {
+                String id = t.getId();
+                delModel(id);
+            }
+        }
     }
 
     public List<String> getModelIdsAsList() {

@@ -13,9 +13,30 @@ import com.zettix.graphics.gjkj.util.V3;
  *
  * @author sean
  */
-public class Rocket extends Model {
+public class Rocket extends Model implements ModelInterface {
     
     public long age = 0;
+    private long start_time = 0l;
+    private long max_length = 1l;
+    private boolean done = false;
+    
+    public Rocket(long now, long maxie) {
+        start_time = now;
+        max_length = maxie;
+    }
+    
+    public boolean isDone() {
+        return done;
+    }
+    
+    public void Update(long now) {
+        long delta = now - start_time;
+        if (delta > max_length) {
+            done = true;
+        } else {
+            MoveForward(delta);
+        }
+    }
     
     public Rocket() {        
         radius = 3.0f;
