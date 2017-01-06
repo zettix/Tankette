@@ -11,6 +11,8 @@ package com.zettix.tankette.game;
  */
 public class Explosion extends Model {
     
-    
+    public void Update() {
+       
+    }
     
 }

@@ -60,7 +60,7 @@ public class GameHandler {
     int rocket_serial = 0;
     int explosion_serial = 0;
     long deltatime = 1l;
-    private final double timescaler = 0.0000001;
+    private final double timescaler = 0.0000001;  // e-6: nano to milli seconds.
     private static final Logger LOG = Logger.getLogger(
                 GameHandler.class.getName());
     private boolean testrocket = false;
@@ -91,8 +91,7 @@ public class GameHandler {
         if (doneloop) {
            doneloop = false;
            updatePlayers();
-           // InfoLog("Horey shett, it works.");
-           period_ms--;
+           period_ms--;  // not really ms.
            if (period_ms < 0) {
                if (testrocket == false) {
                    InfoLog("Adding test rocket!");
@@ -234,6 +233,7 @@ public class GameHandler {
             t.setXr(p.getXr());
             t.setYr(p.getYr());
             t.setZr(p.getZr());
+            t.setCollider(Model.Collider.MISSILE);
             t.MoveForward(8.3 / (t.velocity * delta));
             
             ROCKETMANAGER.addModel(t.getId(), t);
@@ -347,7 +347,9 @@ public class GameHandler {
               .add(p.getId())
               .add(p.getX())
               .add(p.getY())
-              .add(p.getZ());
+              .add(p.getZ())
+              .add(p.getScale());
+
               //.build();
             jexplosionlist.add(pj);
         }
@@ -363,6 +365,7 @@ public class GameHandler {
         return packet;
     }
 
+    /*
     private JsonObject createPosMessage(Player p) {
         int collision = 0;
         if (hitboxHandler.IsHit(p)) {
@@ -382,7 +385,7 @@ public class GameHandler {
                 .build();
         return addMessage;
     }
-
+*/
     private JsonObject createRegisterMessage(Player p) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject addMessage = provider.createObjectBuilder()

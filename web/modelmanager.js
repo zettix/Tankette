@@ -63,7 +63,7 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
       }
     };
     
-    this.UpdateModel = function(modelid, x, y, z, xr, yr, zr) {
+    this.UpdateModel = function(modelid, x, y, z, xr, yr, zr, s) {
       if (models.hasOwnProperty(modelid)) {
           var p = this.GetModel(modelid);
           p.group.position.x = x;
@@ -72,6 +72,9 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
           p.group.rotation.x = xr;
           p.group.rotation.y = yr;
           p.group.rotation.z = zr;
+          p.group.scale.x = s;
+          p.group.scale.y = s;
+          p.group.scale.z = s;
       } else {
           console.log("Error! Update model not found:" + modelid);
       }

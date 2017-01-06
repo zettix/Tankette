@@ -10,13 +10,22 @@ package com.zettix.tankette.game;
  * @author sean
  */
 public class Model extends Object3D {
+    public enum Collider {TANK, MISSILE, I_DUNNO_STUFF};
+    private Collider collider;
     public double radius;
-    public double nearest;
     public double velocity;
     public double rotation_speed;
     public boolean forward, back, left, right, moved;
     public int movecount;
     public Hitbox hitbox;
+    
+    public void setCollider(Collider c) {
+        collider = c;
+    }
+    
+    public Collider getCollider() {
+        return collider;
+    }
 
     public void MoveForward(double delta) {
       double cosy = Math.cos(this.getYr());
@@ -43,7 +52,6 @@ public class Model extends Object3D {
      */
     public Model() {
         radius = 3.0f;
-        nearest = 0.0f;
         velocity = 1.0f;
         rotation_speed = 0.1f;
         forward = false;
