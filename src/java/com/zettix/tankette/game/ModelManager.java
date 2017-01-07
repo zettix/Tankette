@@ -16,12 +16,14 @@ import java.util.List;
  */
 public class ModelManager <T extends ModelInterface & Object3dInterface> {
     private final HashMap<String, T> models;
+    private final HitboxHandler HITBOXHANDER;
     
     private long serial = 0l;
     
     private final DecimalFormat NF = new DecimalFormat("#####");
 
-    public ModelManager() {
+    public ModelManager(HitboxHandler h) {
+        HITBOXHANDER = h;
         this.models = new HashMap<>();
     }
     
@@ -47,6 +49,7 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
     public synchronized void delModel(String id) {
         if (models.containsKey(id)) {
             models.remove(id);
+            HITBOXHANDER.DelModel(id);
         } else {
             // TODO: complain.
         } 

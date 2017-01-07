@@ -15,7 +15,7 @@ import com.zettix.graphics.gjkj.util.V3;
  */
 public class Player extends Model {
     private String id;
-    public static long ONESEC = 1000000000l;
+    public static long ONESEC = 1000l;  // milliseconds
     public boolean toggleturdle, togglefire;
     public long shoot_timeout;
     public int hitpoints = 100;
@@ -32,8 +32,8 @@ public class Player extends Model {
         hitbox.boxHull.TransformObjectSpace(mover);
         
         
-        velocity = .2f;
-        rotation_speed = 0.01f;
+        velocity = .02f;
+        rotation_speed = 0.001f;
         forward = false;
         back = false;
         left = false;

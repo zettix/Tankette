@@ -40,12 +40,12 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
         return keylist;
     };
 
-    this.AddModel = function(modelid, x, y, z, xr, yr, zr) {
+    this.AddModel = function(modelid, x, y, z, xr, yr, zr, s) {
         if (loaded) {
           if (models.hasOwnProperty(modelid)) {
               console.log("NOOOOOOOOOOOOO We HAVE " + modelid);
           }
-          var mymodel = new model_fun(model_, x, y, z, xr, yr, zr, 1.0);
+          var mymodel = new model_fun(model_, x, y, z, xr, yr, zr, s);
           models[modelid] = mymodel;
           scene_.add(mymodel.group);
           console.log("Added model type " + model_ + " with id: "  + modelid);
@@ -104,7 +104,8 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
                     parseFloat(in_p.z),
                     parseFloat(in_p.xr),
                     parseFloat(in_p.yr),
-                    parseFloat(in_p.zr));                        
+                    parseFloat(in_p.zr),
+                    parseFloat(in_p.s));                        
                 delete tmp_models_hash[in_p.id];
             } else {  // new model
                 this.AddModel(
@@ -114,7 +115,8 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
                     parseFloat(in_p.z),
                     parseFloat(in_p.xr),
                     parseFloat(in_p.yr),
-                    parseFloat(in_p.zr));
+                    parseFloat(in_p.zr),
+                    parseFloat(in_p.s));                        
             }
         } // for
         var models_to_delete = Object.keys(tmp_models_hash);

@@ -42,9 +42,9 @@ public class GameHandler {
     private final HashMap<String, Session> sessions = new HashMap<>();
     private final Set players = new HashSet<>();
     private static final PlayerManager PLAYERMANAGER = new PlayerManager();
-    private static final ModelManager<Rocket> ROCKETMANAGER = new ModelManager<>();
+    private static ModelManager<Rocket> ROCKETMANAGER;
     private static final Set<Turdle> TURDLES = new HashSet<>();
-    private static final ModelManager<Explosion> EXPLOSIONS = new ModelManager<>();
+    private static ModelManager<Explosion> EXPLOSIONS;
     
     private long now;
     private final Timer timer = new Timer();
@@ -55,12 +55,11 @@ public class GameHandler {
     private long period_ms = 100l;
     boolean doneloop = true;
     int doneloop_count = 0;
-    private long nano_origin = System.nanoTime();
+    private long milli_origin = System.currentTimeMillis();
     int turdle_serial = 0;
     int rocket_serial = 0;
     int explosion_serial = 0;
     long deltatime = 1l;
-    private final double timescaler = 0.0000001;  // e-6: nano to milli seconds.
     private static final Logger LOG = Logger.getLogger(
                 GameHandler.class.getName());
     private boolean testrocket = false;
@@ -71,15 +70,17 @@ public class GameHandler {
     
     public GameHandler() {
         hitboxHandler = new HitboxHandler();
-        now = System.nanoTime();
+        ROCKETMANAGER = new ModelManager<>(hitboxHandler);
+        EXPLOSIONS = new ModelManager<>(hitboxHandler);     
+        now = System.currentTimeMillis();
         this.ScheduleRunMe();
     }
 
     private synchronized void MainLoop() {
-        now = System.nanoTime();
-        deltatime = now - nano_origin;
-        nano_origin = now;
-        delta = (double) (deltatime) * timescaler;
+        now = System.currentTimeMillis();
+        deltatime = now - milli_origin;
+        milli_origin = now;
+        delta = (double) (deltatime); // seconds
 
         // every frame game loop
         // update collions/physics
@@ -105,7 +106,7 @@ public class GameHandler {
                    ROCKETMANAGER.addModel(p.getId(), p);
                    InfoLog("Adding test rocket! XYZ: " + p.getX() + " " + p.getY() + p.getZ() + p.getId());
 
-                   long secs =  deltatime * 1000000000l;
+                   long secs =  deltatime * 100000l;
                    Explosion e = new Explosion(now, secs, 10.0);
                    serial = explosion_serial++;
                    e.setId("Test Explosion " + serial);
@@ -156,7 +157,7 @@ public class GameHandler {
     private void sendToSession(Session session, JsonObject message) {
         try {
             session.getBasicRemote().sendText(message.toString());
-        } catch (IOException | IllegalStateException ex) {
+        } catch (IOException | IllegalStateException | NullPointerException ex) {
             sessions.remove(session.getId());
             removePlayer(session.getId());
             // Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
@@ -231,9 +232,10 @@ public class GameHandler {
             t.setYr(p.getYr());
             t.setZr(p.getZr());
             t.setCollider(Model.Collider.MISSILE);
-            t.MoveForward(8.3 / (t.velocity * delta));
-            
+            t.MoveForward(80.3 / (t.velocity * delta));
+            InfoLog("Well Adding Rocket Y'all...  what? yeah: " + t.getId());
             ROCKETMANAGER.addModel(t.getId(), t);
+            //EXPLOSIONS.addModel(t.getId(), t);
             hitboxHandler.AddModel(t);
             p.ResetShootTimeout(now);
         }   
@@ -297,6 +299,7 @@ public class GameHandler {
         // ROCKETS
         JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
         List<String> rockets = ROCKETMANAGER.getModelIdsAsList();
+        InfoLog("Rockets on my end: " + rockets.size());
         for (String s : rockets) {
             Model p = (Model) ROCKETMANAGER.getModelById(s);
             JsonObject rj = provider.createObjectBuilder()
@@ -307,6 +310,7 @@ public class GameHandler {
               .add("xr", DF.format(p.getXr()))
               .add("yr", DF.format(p.getYr()))
               .add("zr", DF.format(p.getZr()))
+              .add("s", DF.format(p.getScale()))
               .build();
             jrocketlist.add(rj);
         }

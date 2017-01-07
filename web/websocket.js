@@ -155,7 +155,7 @@ function onMessage(event) {
             }
             var in_rockets = mm.rocketlist;
             if (in_rockets !== undefined) {
-                console.log("Rockets: " + in_rockets.length);
+                //console.log("Rockets: " + in_rockets.length);
                 for (var i = 0; i < in_rockets.length; i += 1) {
                     var in_p = in_rockets[i];
                     if (tmp_rockets_hash.hasOwnProperty(in_p.id)) {
