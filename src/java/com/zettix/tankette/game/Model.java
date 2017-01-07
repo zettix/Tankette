@@ -47,9 +47,7 @@ public class Model extends Object3D {
     public void MoveRight(double delta) {
       setYr(getYr() - delta * rotation_speed);  
     }
-    /**
-     * Start with a hitbox.
-     */
+
     public Model() {
         radius = 3.0f;
         velocity = 1.0f;

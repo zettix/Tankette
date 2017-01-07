@@ -160,7 +160,6 @@ function onMessage(event) {
                     var in_p = in_rockets[i];
                     if (tmp_rockets_hash.hasOwnProperty(in_p.id)) {
                         websocket_packet_txt = in_p.x;
-
                         rocketManager.UpdateModel(
                                 in_p.id,
                                 parseFloat(in_p.x),
@@ -168,7 +167,7 @@ function onMessage(event) {
                                 parseFloat(in_p.z),
                                 parseFloat(in_p.xr),
                                 parseFloat(in_p.yr),
-                                parseFloat(in_p.zr));
+                                parseFloat(in_p.zr), 1.0);
                         delete tmp_rockets_hash[in_p.id];
                     } else {  // new rocket
                       rocketManager.AddModel(
@@ -178,7 +177,7 @@ function onMessage(event) {
                                 parseFloat(in_p.z),
                                 parseFloat(in_p.xr),
                                 parseFloat(in_p.yr),
-                                parseFloat(in_p.zr));
+                                parseFloat(in_p.zr), 1.0);
                     }
                 }
             }   

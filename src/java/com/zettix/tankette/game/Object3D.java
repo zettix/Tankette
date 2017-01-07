@@ -12,7 +12,7 @@ package com.zettix.tankette.game;
  * 
  * @author sean
  */
-public class Object3D {
+public class Object3D implements Object3dInterface {
     protected double x = 0.0;
     protected double y = 0.0;
     protected double z = 0.0;
