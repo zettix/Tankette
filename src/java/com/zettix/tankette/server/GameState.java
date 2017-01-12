@@ -58,14 +58,14 @@ public class GameState implements GameStateInterface {
     
     public Timer getTimer() { return timer;}
 
-    private HashMap<String, Session> sessions;
-    private Set players;
-    private PlayerManager PLAYERMANAGER;
-    private ModelManager<Rocket> ROCKETMANAGER;
-    private Set<Turdle> TURDLES;
-    private ModelManager<Explosion> EXPLOSIONMANAGER;
+    private final HashMap<String, Session> sessions;
+    private final Set players;
+    private final PlayerManager PLAYERMANAGER;
+    private final ModelManager<Rocket> ROCKETMANAGER;
+    private final Set<Turdle> TURDLES;
+    private final ModelManager<Explosion> EXPLOSIONMANAGER;
     long now;
-    private Timer timer;
+    final private Timer timer;
     final HitboxHandler hitboxHandler;
     
     public GameState() {
@@ -74,8 +74,8 @@ public class GameState implements GameStateInterface {
       players = new HashSet<>();
       hitboxHandler = new HitboxHandler();
       PLAYERMANAGER = new PlayerManager();
-      ROCKETMANAGER = new ModelManager<>(hitboxHandler);
+      ROCKETMANAGER = new ModelManager<>(this);
       TURDLES = new HashSet<>();
-      EXPLOSIONMANAGER = new ModelManager<>(hitboxHandler);   
+      EXPLOSIONMANAGER = new ModelManager<>(this);   
     }
 }

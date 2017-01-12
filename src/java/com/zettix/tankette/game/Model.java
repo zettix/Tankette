@@ -79,13 +79,8 @@ public class Model extends Object3D  implements ModelInterface {
     public void Update(long now) {  // should be like pure virtual function in c++
     }
     
-    public void setCollider(Collider c) {
-        collider = c;
-    }
-    
-    public Collider getCollider() {
-        return collider;
-    }
+    public void setCollider(Collider c) {collider = c;}
+    public Collider getCollider() {return collider;}
 
     public void MoveForward(double delta) {
       double cosy = Math.cos(this.getYr());

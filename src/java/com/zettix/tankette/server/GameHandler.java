@@ -94,7 +94,7 @@ public class GameHandler extends GameState {
                    getROCKETMANAGER().addModel(p.getId(), p);
                    InfoLog("Adding test rocket! XYZ: " + p.getX() + " " + p.getY() + p.getZ() + p.getId());
 
-                   long secs =  deltatime * 100000l;
+                   long secs =  deltatime * 1000l;
                    Explosion e = new Explosion(now, secs, 10.0);
                    serial = explosion_serial++;
                    e.setId("Test Explosion " + serial);
