@@ -19,7 +19,6 @@ public class Explosion extends Model {
     private long start_time = 0l;
     private long explosion_length = 1l;
     private double max_scale = 1.0;
-    private boolean done = false;
 
     public Explosion(long now, long boom_long, double maxie) {
         explosion_length = boom_long;
@@ -31,7 +30,7 @@ public class Explosion extends Model {
     public void Update(long now) {
         long delta = now - start_time;
         if (delta > explosion_length) {
-            done = true;
+            setDone();
         } else {
             double sx = Math.PI;
             sx = sx * (float) delta / (float) explosion_length;

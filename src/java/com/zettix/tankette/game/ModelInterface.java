@@ -12,5 +12,6 @@ package com.zettix.tankette.game;
 public interface ModelInterface {
    public boolean isDone();
    public void setDone();
-   public void Update(long now); 
+   public void Update(long now);
+   public Model.Collider getCollider();
 }

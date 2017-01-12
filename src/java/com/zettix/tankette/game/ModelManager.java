@@ -5,6 +5,7 @@
  */
 package com.zettix.tankette.game;
 
+import com.zettix.tankette.server.GameState;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,14 +18,14 @@ import java.util.List;
  */
 public class ModelManager <T extends ModelInterface & Object3dInterface> {
     private final HashMap<String, T> models;
-    private final HitboxHandler HITBOXHANDER;
+    private final GameState gameState;
     
     private long serial = 0l;
     
     private final DecimalFormat NF = new DecimalFormat("#####");
 
-    public ModelManager(HitboxHandler h) {
-        HITBOXHANDER = h;
+    public ModelManager(GameState g) {
+        gameState = g;
         this.models = new HashMap<>();
     }
     
@@ -49,8 +50,14 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
 
     public synchronized void delModel(String id) {
         if (models.containsKey(id)) {
+            if (Model.Collider.MISSILE == models.get(id).getCollider()) {
+                Explosion e = new Explosion(gameState.getNow(), 1000, 5.0);
+                e.copy((Object3D) models.get(id));
+                e.setId(gameState.getEXPLOSIONMANAGER().GetNewSerial());
+                gameState.getEXPLOSIONMANAGER().addModel(e.getId(), e);
+            }
             models.remove(id);
-            HITBOXHANDER.DelModel(id);
+            gameState.getHitboxHandler().DelModel(id);
         } else {
             // TODO: complain.
         } 
