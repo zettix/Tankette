@@ -22,28 +22,26 @@ public class Player extends Model {
     
     public Player() {
         setCollider(Collider.TANK);
-        radius = 6.0f;
-        hitbox = new Hitbox(this);
+        setRadius(6.0);
         // Current model, from tank.js:
         //   this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
         V3 dim = new V3(8.0, 4.0, 4.5);
         M4 mover = new M4().Identity().Move(-4.0, .0, -2.25);
-        hitbox.boxHull = new BoxHull(dim);
-        hitbox.boxHull.TransformObjectSpace(mover);
+        Hitbox h = new Hitbox(this);
+        h.boxHull = new BoxHull(dim);
+        h.boxHull.TransformObjectSpace(mover);
+        setHitbox(h);
         
-        
-        velocity = .02f;
-        rotation_speed = 0.001f;
-        forward = false;
-        back = false;
-        left = false;
-        right = false;
-        moved = false;
+        setVelocity(.02);
+        setRotation_speed(0.001);
+        setForward(false);
+        setBack(false);
+        setLeft(false);
+        setRight(false);
+        setMoved(false);
         toggleturdle = false;
         togglefire = false;
-        movecount = 0;
         shoot_timeout = 0;
-        
     }
     
     // Transform 6 points (collision box) to player space

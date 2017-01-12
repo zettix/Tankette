@@ -9,13 +9,10 @@ package com.zettix.tankette.game;
  *
  * @author sean
  */
-public class Turdle extends Model {
-    private String id;
-    public int age;
-    
+public class Turdle extends Model {    
     public Turdle() {
-        radius = 3.0f;
-        rotation_speed = 0.1f;
-        age = 0;
+        setRadius(3.0);
+        setRotation_speed(0.1);
+        setAge(0);
     }
 }

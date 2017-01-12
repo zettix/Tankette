@@ -9,7 +9,7 @@ import java.lang.Math.*;
  *
  * @author sean
  */
-public class Explosion extends Model implements ModelInterface {
+public class Explosion extends Model {
     // An explosion has the following attributes:
     // Time length
     // max scale
@@ -27,18 +27,16 @@ public class Explosion extends Model implements ModelInterface {
         start_time = now;
     }
 
-    public boolean isDone() {
-        return done;
-    }
-    
+    @Override
     public void Update(long now) {
         long delta = now - start_time;
         if (delta > explosion_length) {
             done = true;
         } else {
-            double s = Math.PI;
-            s = s * (float) delta / (float) explosion_length;
-            s = Math.sin(s) * max_scale;
+            double sx = Math.PI;
+            sx = sx * (float) delta / (float) explosion_length;
+            sx = Math.sin(sx) * max_scale;
+            setScale(sx);
         }
     }
 }

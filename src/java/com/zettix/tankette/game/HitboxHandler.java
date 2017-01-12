@@ -27,14 +27,21 @@ public class HitboxHandler {
         if (modelHitboxes.containsKey(id)) {
             // pass, log error if possible.
         } else {
-            modelHitboxes.put(p.getId(), p.hitbox);
+            modelHitboxes.put(p.getId(), p.getHitbox());
         }
+    }
+    
+    public List<String> GetHitboxKeys() {
+        return new ArrayList(modelHitboxes.keySet());
+    }
+    
+    public Hitbox GetHitboxByName(String name) {
+            return modelHitboxes.get(name);
     }
     
     public String GetHits() {
         StringBuilder out = new StringBuilder();
-        Set keyset = modelHitboxes.keySet();
-        List<String> keylist = new ArrayList(keyset);
+        List<String> keylist = GetHitboxKeys();
         int listsize = keylist.size();
         
         out.append("HitboxHandler: ");
@@ -89,8 +96,10 @@ public class HitboxHandler {
             Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
             Model p = h.model;
             M4 modelTransform = new M4().Identity().Move(p.getX(), p.getY(), p.getZ()).Rotate(0.0, -p.getYr(), 0.0);
-            
             h.boxHull.TransformWorldSpace(modelTransform);
+            
+            
+            // Dots show where hull vertices are on player.  debugging only.
             for (int xx = 0; xx < 8; xx++) {
                 V3 v = h.boxHull.GetCorner(xx);
                 Dot d = new Dot();

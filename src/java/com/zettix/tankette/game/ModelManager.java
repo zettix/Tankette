@@ -13,6 +13,7 @@ import java.util.List;
 /**
  *
  * @author sean
+ * @param <T>  Model class. Manage Models: Geometry and Hitboxes.
  */
 public class ModelManager <T extends ModelInterface & Object3dInterface> {
     private final HashMap<String, T> models;
@@ -28,7 +29,7 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
     }
     
     public synchronized String GetNewSerial() {
-        return NF.format(serial++);
+        return "M" + NF.format(serial++);
     }
         
     public synchronized T getModelById(String id) {

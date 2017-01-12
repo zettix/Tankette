@@ -37,4 +37,21 @@ public class Object3D implements Object3dInterface {
     public void setZr(double f) {  this.zr = f;}
     public void setId(String s) { this.id = s;}
     public void setScale(double f) {this.s = f;}
+    public Object3D copy(Object3D copyFrom){
+        // B O R I N G
+        // O
+        // R  (trust not
+        // I   the clone)
+        // N
+        // G
+        x = copyFrom.x;
+        y = copyFrom.y;
+        z = copyFrom.z;
+        xr = copyFrom.xr;
+        yr = copyFrom.yr;
+        zr = copyFrom.zr;
+        s = copyFrom.s;
+        id = "F" + copyFrom.id;  // F is for "From >"
+        return this;
+    }
 }

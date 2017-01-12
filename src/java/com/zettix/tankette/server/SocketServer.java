@@ -70,12 +70,12 @@ public class SocketServer {
                     p.setYr((Double.valueOf(jsonMessage.getString("yr"))));
                     p.setZr((Double.valueOf(jsonMessage.getString("zr"))));
                     InfoLog("Got info ZZZZZZZZZ"); */
-                    p.forward = jsonMessage.getBoolean("F");
-                    p.back = jsonMessage.getBoolean("B");
-                    p.left = jsonMessage.getBoolean("L");
-                    p.right = jsonMessage.getBoolean("R");
+                    p.setForward(jsonMessage.getBoolean("F"));
+                    p.setBack(jsonMessage.getBoolean("B"));
+                    p.setLeft(jsonMessage.getBoolean("L"));
+                    p.setRight(jsonMessage.getBoolean("R"));
                     p.toggleturdle = jsonMessage.getBoolean("T");
-                    p.togglefire = jsonMessage.getBoolean("A");
+                    p.togglefire =jsonMessage.getBoolean("A");
                     //sessionHandler.updatePlayerLocation(
                     //        sessionHandler.getPlayerById(playerid));
                     //sessionHandler.LogHits();
