@@ -5,10 +5,7 @@
  */
 package com.zettix.tankette.game;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.zettix.graphics.gjkj.GJKIntersect;
-import com.zettix.graphics.gjkj.util.V3;
 import com.zettix.graphics.gjkj.hull.BoxHull;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,11 +16,11 @@ import java.util.Set;
  *
  * @author sean
  */
-class Hitbox {
+public class Hitbox {
     
     // public final Map<String, Model> models = new HashMap<>();
     public boolean is_hit = false;
-    private Set<Model> hitby = new HashSet<>();
+    private final Set<Model> hitby = new HashSet<>();
     public final Model model;
     public BoxHull boxHull;
     
@@ -56,7 +53,7 @@ class Hitbox {
     }
     
     public boolean TestHitGJK(Model p) {
-        GJKIntersect gjksolver = new GJKIntersect(boxHull, p.hitbox.boxHull);
+        GJKIntersect gjksolver = new GJKIntersect(boxHull, p.getHitbox().boxHull);
         return gjksolver.Intersect();
     }
     
@@ -65,7 +62,7 @@ class Hitbox {
         double yd = p.getY() - model.getY();
         double zd = p.getZ() - model.getZ();
         double r2 = xd * xd + yd * yd + zd * zd;
-        double rii = p.radius + model.radius;
+        double rii = p.getRadius() + model.getRadius();
         rii *= rii;
         // return r2 < rii;
         return r2 - rii;

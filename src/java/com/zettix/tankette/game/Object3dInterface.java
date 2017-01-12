@@ -6,6 +6,10 @@
 package com.zettix.tankette.game;
 
 /**
+ * 3-D point (x,y,z) with Euler angles (xr, yr, zr), and scale s.
+ * 
+ * Serves only to hold parameters, perhaps parent should be added,
+ *   but that may happen at a higher level, drilling down when needed.
  *
  * @author sean
  */
@@ -26,4 +30,5 @@ public interface Object3dInterface {
     public void setZr(double f);
     public void setId(String s);
     public void setScale(double f);
+    public Object3D copy(Object3D copyFrom);
 }
