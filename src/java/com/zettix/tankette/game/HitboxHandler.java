@@ -95,7 +95,7 @@ public class HitboxHandler {
         for (int i = 0; i < listsize; i++) {
             Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
             Model p = h.model;
-            M4 modelTransform = new M4().Identity().Move(p.getX(), p.getY(), p.getZ()).Rotate(0.0, -p.getYr(), 0.0);
+            M4 modelTransform = new M4().identity().move(p.getX(), p.getY(), p.getZ()).rotate(0.0, -p.getYr(), 0.0);
             h.boxHull.TransformWorldSpace(modelTransform);
             
             
@@ -103,9 +103,9 @@ public class HitboxHandler {
             for (int xx = 0; xx < 8; xx++) {
                 V3 v = h.boxHull.GetCorner(xx);
                 Dot d = new Dot();
-                d.setX(v.get(0));
-                d.setY(v.get(1));
-                d.setZ(v.get(2));
+                d.setX(v.coords[0]);
+                d.setY(v.coords[1]);
+                d.setZ(v.coords[2]);
                 dots.add(d);
             }
                     

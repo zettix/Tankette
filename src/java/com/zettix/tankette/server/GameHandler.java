@@ -64,12 +64,7 @@ public class GameHandler extends GameState {
         this.ScheduleRunMe();
     }
 
-    private synchronized void MainLoop() {
-        now = System.currentTimeMillis();
-        deltatime = now - milli_origin;
-        milli_origin = now;
-        delta = (double) (deltatime); // seconds
-
+    private void MainLoop() {
         // every frame game loop
         // update collions/physics
         // distribute to clients:
@@ -77,11 +72,16 @@ public class GameHandler extends GameState {
         // terrain.
         // explosions.
         //score, etc.
+        synchronized(this) {
         if (doneloop) {
-           doneloop = false;
-           updatePlayers();
-           period_ms--;  // not really ms.
-           if (period_ms < 0) {
+            now = System.currentTimeMillis();
+            deltatime = now - milli_origin;
+            milli_origin = now;
+            delta = (double) (deltatime); // seconds
+            doneloop = false;
+            updatePlayers();
+            period_ms--;  // not really ms.
+            if (period_ms < 0) {
                if (testrocket == false) {
                    InfoLog("Adding test rocket!");
                    testrocket = true;
@@ -111,6 +111,7 @@ public class GameHandler extends GameState {
                 doneloop = true;
                 doneloop_count = 0;
             }
+        }
         }
     }
     class MainLoopTimer extends TimerTask {
@@ -220,7 +221,8 @@ public class GameHandler extends GameState {
             t.setYr(p.getYr());
             t.setZr(p.getZr());
             t.setCollider(Model.Collider.MISSILE);
-            t.MoveForward(80.3 / (t.getVelocity() * delta));
+            t.MoveForward(100.3 / (t.getVelocity() * delta));
+            //t.MoveForward(t.getVelocity() * delta * 10.0);
             InfoLog("Well Adding Rocket Y'all...  what? yeah: " + t.getId());
             getROCKETMANAGER().addModel(t.getId(), t);
             //EXPLOSIONS.addModel(t.getId(), t);
@@ -287,7 +289,7 @@ public class GameHandler extends GameState {
         // ROCKETS
         JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
         List<String> rockets = getROCKETMANAGER().getModelIdsAsList();
-        InfoLog("Rockets on my end: " + rockets.size());
+        //InfoLog("Rockets on my end: " + rockets.size());
         for (String s : rockets) {
             Model p = (Model) getROCKETMANAGER().getModelById(s);
             JsonObject rj = provider.createObjectBuilder()
@@ -423,17 +425,17 @@ public class GameHandler extends GameState {
                 removals.add(t);
             }
         }
-        for (Iterator it = removals.iterator(); it.hasNext();) {
+        for (Iterator<Turdle> it = removals.iterator(); it.hasNext();) {
             getTURDLES().remove(it.next());
         }
     }
     
     private void updateRockets() {
-        getROCKETMANAGER().updateModels(getNow());
+        getROCKETMANAGER().updateModels(now, delta);
     }
     
     private void updateExplosions() {
-        getEXPLOSIONMANAGER().updateModels(now);
+        getEXPLOSIONMANAGER().updateModels(now, delta);
     }
 
     private void updatePlayers() {
@@ -460,12 +462,24 @@ public class GameHandler extends GameState {
         }
         try {
             updateTurdles();
+         } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix Turdle concurrent mods! " + ex.toString());
+        }   
+        try {        
             updateRockets();
+                    } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix  Rocket concurrent mods! " + ex.toString());
+        }
+        try {
             updateExplosions();
+                    } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix Explosions concurrent mods! " + ex.toString());
+        }
+        try {
             // Network
             sendToAllConnectedSessions(createGamePacket());
         } catch(java.util.ConcurrentModificationException ex) {
-            InfoLog("Fix concurrent mods! " + ex.toString());
+            InfoLog("Fix connections concurrent mods! " + ex.toString());
         }
         /*
         for (Player p : players) {
@@ -498,7 +512,7 @@ public class GameHandler extends GameState {
         try {
           hitboxHandler.DetectCollisions();
           for (String s : hitboxHandler.GetHitboxKeys()) {
-              InfoLog("XXXXXXXXXXXXXXXXXXXXXXXXXX Getting hitbox " + s);
+              //InfoLog("XXXXXXXXXXXXXXXXXXXXXXXXXX Getting hitbox " + s);
               Hitbox h = hitboxHandler.GetHitboxByName(s);
               if (h.is_hit) {  // a hit is a pair event but handled separately.
                 Model m = h.model;

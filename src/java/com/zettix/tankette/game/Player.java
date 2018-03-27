@@ -15,7 +15,7 @@ import com.zettix.graphics.gjkj.util.V3;
  */
 public class Player extends Model {
     private String id;
-    public static long ONESEC = 1000l;  // milliseconds
+    public static long ONESEC = 300l;  // milliseconds
     public boolean toggleturdle, togglefire;
     public long shoot_timeout;
     public int hitpoints = 100;
@@ -26,7 +26,7 @@ public class Player extends Model {
         // Current model, from tank.js:
         //   this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
         V3 dim = new V3(8.0, 4.0, 4.5);
-        M4 mover = new M4().Identity().Move(-4.0, .0, -2.25);
+        M4 mover = new M4().identity().move(-4.0, .0, -2.25);
         Hitbox h = new Hitbox(this);
         h.boxHull = new BoxHull(dim);
         h.boxHull.TransformObjectSpace(mover);

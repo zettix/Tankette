@@ -76,7 +76,7 @@ public class Model extends Object3D  implements ModelInterface {
         done = true;
     }
     
-    public void Update(long now) {  // should be like pure virtual function in c++
+    public void Update(long now, double delta) {  // should be like pure virtual function in c++
     }
     
     public void setCollider(Collider c) {collider = c;}

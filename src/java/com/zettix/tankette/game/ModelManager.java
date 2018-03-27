@@ -72,9 +72,9 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
         } 
     }
     
-    public synchronized void updateModels(long now) {
+    public synchronized void updateModels(long now, double delta) {
         for(T t : models.values()) {
-            t.Update(now);
+            t.Update(now, delta);
             if (t.isDone()) {
                 String id = t.getId();
                 delModel(id);

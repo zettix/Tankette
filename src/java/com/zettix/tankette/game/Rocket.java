@@ -19,19 +19,20 @@ public class Rocket extends Model {
     public long getMax_age() {return max_age;}
     public void setMax_age(long max_age) {this.max_age = max_age;}
         
-    public Rocket(long now, long maxie) {
-        setStartTime(now);
-        setAgo(now);
-        max_age = maxie;
-    }
+   // public Rocket(long anow, long maxie) {
+   //     setStartTime(anow);
+   //     setAgo(anow);
+   //     max_age = maxie;
+   // }
     
     @Override
-    public void Update(long now) {
-        long delta = now - getStartTime();
-        if (delta > max_age) {
+    public void Update(long now, double delta) {
+        long age = now - getStartTime();
+        if (age > max_age) {
             setDone();
         } else {
-            MoveForward(delta);
+            MoveForward(delta); // le smoking gun.  delta is age, in increases.
+            // So real delta is needed.
         }
     }
     
@@ -47,11 +48,11 @@ public class Rocket extends Model {
         //   this.hitbox_geo = new THREE.BoxGeometry(6, 1.1, 1.1);
         // 
         V3 dim = new V3(6.1, 1.1, 1.1);
-        M4 mover = new M4().Identity().Move(-3.0, -0.6, -0.6);
+        M4 mover = new M4().identity().move(-3.0, -0.6, -0.6);
         h.boxHull = new BoxHull(dim);
         h.boxHull.TransformObjectSpace(mover);
         setHitbox(h);
-        setVelocity(.00002);
+        setVelocity(.1);
         setRotation_speed(0.01);
         setForward(true);
         setBack(false);

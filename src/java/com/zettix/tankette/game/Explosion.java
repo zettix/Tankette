@@ -27,13 +27,13 @@ public class Explosion extends Model {
     }
 
     @Override
-    public void Update(long now) {
-        long delta = now - start_time;
-        if (delta > explosion_length) {
+    public void Update(long now, double delta) {
+        long age = now - start_time;
+        if (age > explosion_length) {
             setDone();
         } else {
             double sx = Math.PI;
-            sx = sx * (float) delta / (float) explosion_length;
+            sx = sx * (float) age / (float) explosion_length;
             sx = Math.sin(sx) * max_scale;
             setScale(sx);
         }
