@@ -8,6 +8,7 @@ package com.zettix.tankette.game;
 import com.zettix.graphics.gjkj.hull.BoxHull;
 import com.zettix.graphics.gjkj.util.M4;
 import com.zettix.graphics.gjkj.util.V3;
+import com.zettix.tankette.game.interfaces.AbstractTerrain;
 
 /**
  *
@@ -34,6 +35,14 @@ public class Rocket extends Model {
             MoveForward(delta); // le smoking gun.  delta is age, in increases.
             // So real delta is needed.
         }
+    }
+    
+    public boolean HitTheGround(AbstractTerrain terrain) {
+        double groundzero = terrain.getHeight(this.getX(), this.getZ());
+        if (groundzero > this.getY()) {
+            return true;
+        } 
+        return false;
     }
     
     public Rocket() {

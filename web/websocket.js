@@ -10,6 +10,8 @@
 /* global explosionManager */
 /* global turdleManager */
 /* global dotManager */
+/* global terrainManager */
+/* global clock */
 
 console.log("Websocket init");
 
@@ -41,6 +43,17 @@ function onMessage(event) {
        parseFloat(mm.xr),
        parseFloat(mm.yr),
        parseFloat(mm.zr));
+    } else if (msg_type === "tile"){
+        //console.log("TILE PACKET!!!!");
+        terrainManager.AddTile(mm.n);
+    } else if (msg_type === "T") {
+       //console.log("T packet!!");
+       var in_tiles = mm.n;
+       if (in_tiles !== undefined) {
+         terrainManager.Update(in_tiles, clock.getElapsed);
+       } else {
+           console.log("Nothing to terrian.");
+       }
     } else if (msg_type === "register") {
         playerManager.RegisterWithServer(mm.id);
     } else if (msg_type === "del") {
@@ -261,8 +274,11 @@ function pushButtons(wasd) {
         L: wasd.moveLeft,
         R: wasd.moveRight,
         A: wasd.toggleFire,
-        T: wasd.toggleTurdle};
+        T: wasd.toggleTurdle,
+        t: terrainManager.Needed()
+    };
     if (socket.readyState === socket.OPEN) {
+      //  console.log(JSON.stringify(msg));
       socket.send(JSON.stringify(msg));
     }
 }

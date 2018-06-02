@@ -1,6 +1,6 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this templ ate file, choose Tools | Templates
  * and open the template in the editor.
  */
 package com.zettix.tankette.game;
@@ -32,7 +32,7 @@ public class Player extends Model {
         h.boxHull.TransformObjectSpace(mover);
         setHitbox(h);
         
-        setVelocity(.02);
+        setVelocity(.08);
         setRotation_speed(0.001);
         setForward(false);
         setBack(false);
@@ -48,29 +48,36 @@ public class Player extends Model {
     // for axis-alighned tests.
     public void Invert(double[] points) {
         // first translate:
-        points[0] -= x;
-        points[1] -= x;
-        points[2] -= y;
-        points[3] -= y;
-        points[4] -= z;
-        points[5] -= z;
+        points[0] -= p.coords[0];
+        points[1] -= p.coords[0];
+        points[2] -= p.coords[1];
+        points[3] -= p.coords[1];
+        points[4] -= p.coords[2];
+        points[5] -= p.coords[2];
         // maybe z/y/x?
         // TODO rotations.
         
     }
         public void Transform(double[] points) {
         // first translate:
-        points[0] += x;
-        points[1] += x;
-        points[2] += y;
-        points[3] += y;
-        points[4] += z;
-        points[5] += z;
+        points[0] += p.coords[0];
+        points[1] += p.coords[0];
+        points[2] += p.coords[1];
+        points[3] += p.coords[1];
+        points[4] += p.coords[2];
+        points[5] += p.coords[2];
         // maybe z/y/x?
         // TODO rotations.
     }
         
     public void ResetShootTimeout(long now) {
         shoot_timeout = ONESEC + now;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer sb  = new StringBuffer("P:");
+        sb.append(super.toString());
+        return sb.toString();
     }
 }

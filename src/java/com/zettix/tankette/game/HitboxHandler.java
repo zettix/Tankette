@@ -32,7 +32,7 @@ public class HitboxHandler {
     }
     
     public List<String> GetHitboxKeys() {
-        return new ArrayList(modelHitboxes.keySet());
+        return new ArrayList<String>(modelHitboxes.keySet());
     }
     
     public Hitbox GetHitboxByName(String name) {
@@ -84,7 +84,7 @@ public class HitboxHandler {
         // indexes into the map, but I have to put the keys into a list
         // first then go 1..n+2..n,
         Set<String> keyset = modelHitboxes.keySet();
-        List<String> keylist = new ArrayList(keyset);
+        List<String> keylist = new ArrayList<>(keyset);
         int listsize = keylist.size();
         
         StringBuilder out = new StringBuilder();
@@ -93,7 +93,7 @@ public class HitboxHandler {
         dots.clear();
         // for now clear since lists set up.
         for (int i = 0; i < listsize; i++) {
-            Hitbox h = (Hitbox) modelHitboxes.get(keylist.get(i));
+            Hitbox h = modelHitboxes.get(keylist.get(i));
             Model p = h.model;
             M4 modelTransform = new M4().identity().move(p.getX(), p.getY(), p.getZ()).rotate(0.0, -p.getYr(), 0.0);
             h.boxHull.TransformWorldSpace(modelTransform);

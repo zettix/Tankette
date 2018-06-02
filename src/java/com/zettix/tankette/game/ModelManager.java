@@ -5,6 +5,8 @@
  */
 package com.zettix.tankette.game;
 
+import com.zettix.tankette.game.interfaces.ModelInterface;
+import com.zettix.tankette.game.interfaces.Object3dInterface;
 import com.zettix.tankette.server.GameState;
 import java.text.DecimalFormat;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.zettix.tankette.server;
+package com.zettix.tankette.game.interfaces;
 
 import com.zettix.tankette.game.Explosion;
 import com.zettix.tankette.game.HitboxHandler;

@@ -5,6 +5,9 @@
  */
 package com.zettix.tankette.game;
 
+import com.zettix.graphics.gjkj.util.V3;
+import com.zettix.tankette.game.interfaces.Object3dInterface;
+
 /**
  * This is a single 3D point with an orientation and scale, that is, xyz
  * rx ry rz and scale, euler rotations but maybe quaternions once guided
@@ -13,30 +16,43 @@ package com.zettix.tankette.game;
  * @author sean
  */
 public class Object3D implements Object3dInterface {
-    protected double x = 0.0;
-    protected double y = 0.0;
-    protected double z = 0.0;
-    protected double xr = 0.0;
-    protected double yr = 0.0;
-    protected double zr = 0.0;
+    protected V3 p;
+    protected V3 r;
     protected double s = 1.0;
     private String id;
     public String getId() {return id;}
-    public double getX() { return x;}
-    public double getY() { return y;}
-    public double getZ() { return z;}
-    public double getXr() { return xr;}
-    public double getYr() { return yr;}
-    public double getZr() { return zr;}
+    public double getX() { return p.coords[0];}
+    public double getY() { return p.coords[1];}
+    public double getZ() { return p.coords[2];}
+    public double getXr() { return r.coords[0];}
+    public double getYr() { return r.coords[1];}
+    public double getZr() { return r.coords[2];}
     public double getScale() { return s;}
-    public void setX(double f) {  this.x = f;}
-    public void setY(double f) {  this.y = f;}
-    public void setZ(double f) {  this.z = f;}
-    public void setXr(double f) {  this.xr = f;}
-    public void setYr(double f) {  this.yr = f;}
-    public void setZr(double f) {  this.zr = f;}
-    public void setId(String s) { this.id = s;}
+    public void setX(double f) {  p.coords[0] = f;}
+    public void setY(double f) {  p.coords[1] = f;}
+    public void setZ(double f) {  p.coords[2] = f;}
+    public void setXr(double f) { r.coords[0] = f;}
+    public void setYr(double f) { r.coords[1] = f;}
+    public void setZr(double f) { r.coords[2] = f;}
+    public void setId(String s) { id = s;}
     public void setScale(double f) {this.s = f;}
+
+    public Object3D(double x, double y, double z, 
+                    double rx, double ry, double rz,
+                    double scale, String name) {
+        p = new V3(x, y, z);
+        r = new V3(rx, ry, rz);
+        s = scale;
+        id = name;
+    }
+    
+     public Object3D() {
+        p = new V3();
+        r = new V3();
+        s = 1.0;
+        id = "None";
+    }
+    
     public Object3D copy(Object3D copyFrom){
         // B O R I N G
         // O
@@ -44,14 +60,26 @@ public class Object3D implements Object3dInterface {
         // I   the clone)
         // N
         // G
-        x = copyFrom.x;
-        y = copyFrom.y;
-        z = copyFrom.z;
-        xr = copyFrom.xr;
-        yr = copyFrom.yr;
-        zr = copyFrom.zr;
+        p.coords[0] = copyFrom.p.coords[0];
+        p.coords[1] = copyFrom.p.coords[1];
+        p.coords[2] = copyFrom.p.coords[2];
+        r.coords[0] = copyFrom.r.coords[0];
+        r.coords[1] = copyFrom.r.coords[1];
+        r.coords[2] = copyFrom.r.coords[2];
         s = copyFrom.s;
-        id = "F" + copyFrom.id;  // F is for "From >"
+        id = copyFrom.id;
         return this;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer("Ob:[")
+            .append(p.coords[0]).append(",")
+            .append(p.coords[1]).append(",") 
+            .append(p.coords[2]).append("] <")
+            .append(r.coords[0]).append(",")
+            .append(r.coords[1]).append(",")
+            .append(r.coords[2]).append(">");        
+        return sb.toString();
     }
 }

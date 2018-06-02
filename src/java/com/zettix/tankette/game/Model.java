@@ -5,20 +5,22 @@
  */
 package com.zettix.tankette.game;
 
+import com.zettix.tankette.game.interfaces.ModelInterface;
+
 /**
  *
  * @author sean
  */
 public class Model extends Object3D  implements ModelInterface {
-    public enum Collider {TANK, MISSILE, I_DUNNO_STUFF};  // crude who-am-i needs thought.
+    public enum Collider {TANK, MISSILE, EXPLOSION, I_DUNNO_STUFF};  // crude who-am-i needs thought.
     private Collider collider;
     private double radius;  // of sphere collider.
     private double velocity;
     private double rotation_speed;
     private boolean forward, back, left, right, moved;
-    private int movecount;
-    public int getMovecount() {return movecount; }
-    public void setMovecount(int movecount) {this.movecount = movecount;}
+    private long movecount;
+    public long getMovecount() {return movecount; }
+    public void setMovecount(long movecount) {this.movecount = movecount;}
     private Hitbox hitbox;
     private boolean done;
     private long ago = 0;
@@ -85,14 +87,14 @@ public class Model extends Object3D  implements ModelInterface {
     public void MoveForward(double delta) {
       double cosy = Math.cos(this.getYr());
       double siny = Math.sin(this.getYr());
-      x -= delta * cosy * velocity;
-      z += delta * siny * velocity;
+      p.coords[0] -= delta * cosy * velocity;
+      p.coords[2] += delta * siny * velocity;
     }
     public void MoveBackward(double delta) {
       double cosy = Math.cos(this.getYr());
       double siny = Math.sin(this.getYr());
-      x += delta * cosy * velocity;
-      z -= delta * siny * velocity;  
+      p.coords[0] += delta * cosy * velocity;
+      p.coords[2] -= delta * siny * velocity;  
     }
     
     public void MoveLeft(double delta) {
@@ -112,6 +114,13 @@ public class Model extends Object3D  implements ModelInterface {
         left = false;
         right = false;
         moved = false;
-        movecount = 0;
+        movecount = 0L;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer("M:");
+        sb.append(super.toString());
+        return sb.toString();
     }
 }

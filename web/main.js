@@ -23,12 +23,16 @@ console.log("Main init");
 var playerManager = new tankette.PlayerManager("T34", scene);
 var rocketManager = new tankette.ModelManager("rocket1opt", tankette.Rocket, scene);
 var explosionManager = new tankette.ModelManager("ballexplosion", tankette.Explosion, scene);
-console.log("playerManger and rocketManager are done");
 var turdleManager = new tankette.TurdleManager("rocket1opt", scene);
 var dotManager = new tankette.DotManager("none", scene);
-console.log("turdlemanager is done too!=) happy");
+var terrainManager = new tankette.TerrainManager(scene);
 
 console.log("Player Manager: " + playerManager);
+console.log("Rocket manager:" + rocketManager);
+console.log("Explosion manager:" + explosionManager);
+console.log("Turdle manager:" + turdleManager);
+console.log("Terrain Manager: " + terrainManager);
+
 var ResetCamera = function() {
   camera.position.z = -26;
   camera.position.y = 14;
@@ -75,7 +79,7 @@ cube.receiveShadow = true;
 var greenmat = new THREE.MeshLambertMaterial( {color: 0x22ff22});
 
 scene.add(spot1);
-scene.add(terrain.group);
+//scene.add(terrain.group);
 scene.add(cube);
 
 var controls = new WASD.Controls(undefined);
@@ -84,9 +88,12 @@ controls.lookSpeed = 0.05;
 
 var chasecam = new tankette.ChaseCam(undefined, camera);
 ResetCamera();
-var use_chase_cam = false;
+var use_chase_cam = true;
 var can_change_cam = true;
 var update_timeout = 0;
+var can_wireframe = false;
+var use_wireframe = false;
+
 
 var skybox = new tankette.SkyBox(scene);
 var textout = new tankette.Text();
@@ -113,9 +120,12 @@ var Update = function() {
       console.log("Explosions:" + explosionManager.NumModels());
       console.log("Explosions " + explosionManager.Print());
       console.log("Packet: " + websocket_packet_txt);
+      console.log("Terrain" + terrainManager.Summary());
+      console.log("Wireframe: " + use_wireframe);
       pushBox();
   }
   //controls.update(update_delta);
+  WireFrameUpdate();
   terrain.update();
   textout.update();
   pushButtons(controls);
@@ -140,6 +150,24 @@ var CamUpdate = function() {
     ResetCamera();
   }
   //rocket1.group.rotation.y  += 0.01;
+};
+
+// all this jazz is to make a T flip flop.
+var WireFrameUpdate = function() {
+    if (controls.toggleWireFrame === true) {
+        if (can_wireframe === true) {
+            can_wireframe = false;
+            if (use_wireframe === true) {
+                // disable wireframe;
+                use_wireframe = false;
+            } else {
+                // enable wireframe
+                use_wireframe = true;
+            }
+        }
+    } else {
+        can_wireframe = true;
+    }
 };
 
 var render = function() {

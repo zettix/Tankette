@@ -30,7 +30,7 @@ import javax.json.JsonReader;
 @ServerEndpoint("/actions")
 public class SocketServer {
     
-    private final Logger LOG = Logger.getLogger("SocketServer");
+    private static final Logger LOG = Logger.getLogger("SocketServer");
     
     @Inject
     private GameHandler sessionHandler;
@@ -54,7 +54,7 @@ public class SocketServer {
 
     @OnMessage
     public void handleMessage(String message, Session session) {
-        //InfoLog("Handle this! ZZZZZZZZZZZZZZZZZfo XXXXXXXXXXXX\n");
+        //System.out.println("MSG:"  + message);
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = reader.readObject();
             String msg = jsonMessage.getString("msg_type");
@@ -63,12 +63,6 @@ public class SocketServer {
                     String playerid = session.getId();
                     Player p = sessionHandler.getPlayerById(playerid);
                     /*  Do not trust the player to send position info.
-                    p.setX((Double.valueOf(jsonMessage.getString("x"))));
-                    p.setY((Double.valueOf(jsonMessage.getString("y"))));
-                    p.setZ((Double.valueOf(jsonMessage.getString("z"))));
-                    p.setXr((Double.valueOf(jsonMessage.getString("xr"))));
-                    p.setYr((Double.valueOf(jsonMessage.getString("yr"))));
-                    p.setZr((Double.valueOf(jsonMessage.getString("zr"))));
                     InfoLog("Got info ZZZZZZZZZ"); */
                     p.setForward(jsonMessage.getBoolean("F"));
                     p.setBack(jsonMessage.getBoolean("B"));
@@ -79,6 +73,12 @@ public class SocketServer {
                     //sessionHandler.updatePlayerLocation(
                     //        sessionHandler.getPlayerById(playerid));
                     //sessionHandler.LogHits();
+                    String tilename = jsonMessage.getString("t");
+                    if (tilename != null && tilename.length() > 0) {
+                      //System.out.println("Creating packet for tile " + tilename);
+                      JsonObject json = sessionHandler.createTerrainTileMessage(tilename);
+                      sessionHandler.sendToSession(session, json);
+                    }
                     break;
                 default:
                     break;

@@ -41,7 +41,7 @@ public class Hitbox {
     }
     
     public List<Model> GetHits() {
-        return new ArrayList(hitby);
+        return new ArrayList<Model>(hitby);
     }
     
     public double TestHitCylinder(Model p) {
