@@ -12,9 +12,15 @@ tankette.SkyBox = function(my_scene) {
   var urls = [ urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
       urlPrefix + "posy.jpg", urlPrefix + "negy.jpg",
       urlPrefix + "posz.jpg", urlPrefix + "negz.jpg" ];
-  var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+  /*var urls = [
+      "posx.jpg", "negx.jpg", 
+      "posy.jpg", "negy.jpg",
+      "posz.jpg", "negz.jpg"];*/
+  
+  var texCube = new THREE.CubeTextureLoader().load(urls);
+  //var textureCube = THREE.ImageUtils.loadTextureCube( urls );
   //var textureCube = THREE.CubeTextureLoader(urls);
-
+/*
   var shader = THREE.ShaderLib["cube"];
   var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
   uniforms['tCube'].value = textureCube;   // textureCube has been init before
@@ -25,7 +31,7 @@ tankette.SkyBox = function(my_scene) {
       depthWrite: false,
       side: THREE.BackSide
   });
-
+*/
   // var material = new THREE.MeshPhongMaterial({
    // map: textureCube,
     //normalMap: earthNormalMap,
@@ -37,9 +43,10 @@ tankette.SkyBox = function(my_scene) {
   //my_scene.add(pig);
 
   // build the skybox Mesh 
-  var skyboxMesh    = new THREE.Mesh( new THREE.BoxGeometry( 500, 500, 500, 1, 1, 1, null, true ), material );
+ // var skyboxMesh    = new THREE.Mesh( new THREE.BoxGeometry( 500, 500, 500, 1, 1, 1, null, true ), material );
   // add it to the scene
-  my_scene.add(skyboxMesh);
+  //my_scene.add(skyboxMesh);
+  my_scene.background = texCube;
   console.log("skybox added");
 };
 

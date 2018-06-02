@@ -8,6 +8,7 @@ package com.zettix.tankette.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 /**
  *
@@ -56,5 +57,14 @@ public class PlayerManager {
         
         public List<String> getPlayerIdsAsList() {
            return new ArrayList<>(players.keySet());
+        }
+        
+        @Override
+        public String toString() {
+            StringBuffer sb = new StringBuffer("Playermanger:\n");
+            for (Entry<String, Player> entry : players.entrySet()) {
+                sb.append(entry.getKey() + ":" + entry.getValue().toString());
+            }
+            return sb.toString();
         }
 }

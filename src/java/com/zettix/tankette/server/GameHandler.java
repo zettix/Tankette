@@ -5,19 +5,18 @@
  */
 package com.zettix.tankette.server;
 
+import com.zettix.graphics.gjkj.util.V3;
 import com.zettix.tankette.game.Dot;
 import com.zettix.tankette.game.Explosion;
 import com.zettix.tankette.game.Hitbox;
-import com.zettix.tankette.game.HitboxHandler;
 import com.zettix.tankette.game.Model;
-import com.zettix.tankette.game.ModelManager;
 import java.util.HashSet;
 import java.util.Set;
 import javax.websocket.Session;
 import com.zettix.tankette.game.Player;
-import com.zettix.tankette.game.PlayerManager;
 import com.zettix.tankette.game.Rocket;
 import com.zettix.tankette.game.Turdle;
+import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.io.IOException;
 import java.text.DecimalFormat;
 // import java.math.BigDecimal;
@@ -40,36 +39,47 @@ import javax.json.spi.JsonProvider;
  */
 @ApplicationScoped
 public class GameHandler extends GameState {    
-    // Because random.
-    private final Random rnd = new Random();
-    private final long delayseconds = 2l;
-    private long period_ms = 100l;
-    boolean doneloop = true;
-    int doneloop_count = 0;
-    private long milli_origin = System.currentTimeMillis();
-    int turdle_serial = 0;
-    int rocket_serial = 0;
-    int explosion_serial = 0;
-    long deltatime = 1l;
+    private final Random rnd; // Because random.
+    private final long delayseconds;
+    private long period_ms;
+    boolean doneloop;
+    int doneloop_count;
+    private long milli_origin;
+    private long last_turdle;
+    private final long turdle_period;
+    int turdle_serial;
+    int rocket_serial;
+    int explosion_serial;
+    long deltatime;
     private static final Logger LOG = Logger.getLogger(
                 GameHandler.class.getName());
-    private boolean testrocket = false;
+    private boolean testrocket;
     private double delta;  // change in ms.
 
     private static final DecimalFormat DF = new DecimalFormat("#.##");
     
     
-    public GameHandler() {    
+    public GameHandler() {
+        System.out.println("Gamehandler init start.......");
+        this.testrocket = false;
+        this.deltatime = 1l;
+        this.explosion_serial = 0;
+        this.rocket_serial = 0;
+        this.turdle_serial = 0;
+        this.turdle_period = 100l;
+        this.last_turdle = milli_origin;
+        this.milli_origin = System.currentTimeMillis();
+        this.doneloop_count = 0;
+        this.doneloop = true;
+        this.period_ms = 100l;
+        this.delayseconds = 2l;
+        this.rnd = new Random();
         now = System.currentTimeMillis();
+        this.TERRAIN.setSize(10000.0, 10000.0).setPosition(new V3(0.0, 0, 0.0)).ConnectDatabase("burb");
         this.ScheduleRunMe();
     }
 
-    private synchronized void MainLoop() {
-        now = System.currentTimeMillis();
-        deltatime = now - milli_origin;
-        milli_origin = now;
-        delta = (double) (deltatime); // seconds
-
+    private void MainLoop() {
         // every frame game loop
         // update collions/physics
         // distribute to clients:
@@ -77,11 +87,17 @@ public class GameHandler extends GameState {
         // terrain.
         // explosions.
         //score, etc.
+        //System.out.println("Main Loop!");
+        synchronized(this) {
         if (doneloop) {
-           doneloop = false;
-           updatePlayers();
-           period_ms--;  // not really ms.
-           if (period_ms < 0) {
+            now = System.currentTimeMillis();
+            deltatime = now - milli_origin;
+            milli_origin = now;
+            delta = (double) (deltatime); // seconds
+            doneloop = false;
+            updatePlayers();
+            period_ms--;  // not really ms.
+            if (period_ms < 0) {
                if (testrocket == false) {
                    InfoLog("Adding test rocket!");
                    testrocket = true;
@@ -103,6 +119,10 @@ public class GameHandler extends GameState {
                    e.setZ(11.0 + serial * 3.0);
                    getEXPLOSIONMANAGER().addModel(e.getId(), e);
                }
+               System.out.println("Hello.  This is me. Chilling.");
+               System.out.println("Players:" + PLAYERMANAGER.toString());
+               period_ms = 10000;
+               
            }
            doneloop = true;
         } else {
@@ -111,6 +131,7 @@ public class GameHandler extends GameState {
                 doneloop = true;
                 doneloop_count = 0;
             }
+        }
         }
     }
     class MainLoopTimer extends TimerTask {
@@ -142,11 +163,19 @@ public class GameHandler extends GameState {
         sendToSession(session, regMessage);
     }
     
-    private void sendToSession(Session session, JsonObject message) {
+    public void sendToSession(Session session, JsonObject message) {
         try {
             session.getBasicRemote().sendText(message.toString());
         } catch (IOException | IllegalStateException | NullPointerException ex) {
-            getSessions().remove(session.getId());
+            try {
+                String sid = session.getId();
+                if (sid != null && sid.length() > 0) {
+                    getSessions().remove(sid);
+                }
+            } catch (NullPointerException e2) {
+                Logger.getLogger(GameHandler.class.getName()).log(Priority.INFO, "Oh no! Null pointer!" + ex);
+            }
+               getSessions().remove(session.getId());
             removePlayer(session.getId());
             // Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
         }
@@ -168,7 +197,9 @@ public class GameHandler extends GameState {
 
     public synchronized void addPlayer(Session s) {
         Player p = new Player();
-        p.setX(rnd.nextDouble() * 10.0f);
+        double randy = rnd.nextDouble();
+        System.out.println("Randy: " + randy);
+        p.setX(randy * 10.0f);
         p.setY(0.0f);
         p.setZ(rnd.nextDouble() * 10.0f);
         p.setXr(0.0f);
@@ -186,10 +217,15 @@ public class GameHandler extends GameState {
 
     public void addTurdle(String id) {
         Player p = getPlayerById(id);
+        long ts = System.currentTimeMillis();
+        if ((ts - last_turdle) < turdle_period) {
+            return;
+        }
         if (p.isMoved()) {
-          int movecount = p.getMovecount();
+          long movecount = p.getMovecount();
           p.setMovecount(movecount + 1);
           if (movecount > 5) {
+              
             Turdle t = new Turdle();
             t.setId("A" + turdle_serial++);
             t.setX(p.getX());
@@ -199,6 +235,7 @@ public class GameHandler extends GameState {
             t.setYr(p.getYr());
             t.setZr(p.getZr());
             getTURDLES().add(t);
+            last_turdle = ts;
           }
         }
     }
@@ -220,7 +257,8 @@ public class GameHandler extends GameState {
             t.setYr(p.getYr());
             t.setZr(p.getZr());
             t.setCollider(Model.Collider.MISSILE);
-            t.MoveForward(80.3 / (t.getVelocity() * delta));
+            t.MoveForward(100.3 / (t.getVelocity() * delta));
+            //t.MoveForward(t.getVelocity() * delta * 10.0);
             InfoLog("Well Adding Rocket Y'all...  what? yeah: " + t.getId());
             getROCKETMANAGER().addModel(t.getId(), t);
             //EXPLOSIONS.addModel(t.getId(), t);
@@ -287,9 +325,10 @@ public class GameHandler extends GameState {
         // ROCKETS
         JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
         List<String> rockets = getROCKETMANAGER().getModelIdsAsList();
-        InfoLog("Rockets on my end: " + rockets.size());
+        //InfoLog("Rockets on my end: " + rockets.size());
         for (String s : rockets) {
             Model p = (Model) getROCKETMANAGER().getModelById(s);
+            if (p != null) {
             JsonObject rj = provider.createObjectBuilder()
               .add("id", p.getId())
               .add("x", DF.format(p.getX()))
@@ -301,6 +340,7 @@ public class GameHandler extends GameState {
               .add("s", DF.format(p.getScale()))
               .build();
             jrocketlist.add(rj);
+            }
         }
  
         JsonArrayBuilder jturdlelist = provider.createArrayBuilder();
@@ -423,25 +463,25 @@ public class GameHandler extends GameState {
                 removals.add(t);
             }
         }
-        for (Iterator it = removals.iterator(); it.hasNext();) {
+        for (Iterator<Turdle> it = removals.iterator(); it.hasNext();) {
             getTURDLES().remove(it.next());
         }
     }
     
     private void updateRockets() {
-        getROCKETMANAGER().updateModels(getNow());
+        getROCKETMANAGER().updateModels(now, delta);
     }
     
     private void updateExplosions() {
-        getEXPLOSIONMANAGER().updateModels(now);
+        getEXPLOSIONMANAGER().updateModels(now, delta);
     }
 
     private void updatePlayers() {
         
-        List<Player> players = getPLAYERMANAGER().getPlayersAsList();
+        List<Player> playerList = new ArrayList<>(getPLAYERMANAGER().getPlayersAsList());
 
         // Move/Shoot
-        for (Player p : players) {
+        for (Player p : playerList) {
             updatePlayerLocation(p);
             if (p.toggleturdle) {
                addTurdle(p.getId());
@@ -453,27 +493,42 @@ public class GameHandler extends GameState {
         
         // Collide
         DetectCollisions();
-        for (Player p : players) {
+        for (Player p : playerList) {
             if (hitboxHandler.IsHit(p)) {
                 MoveUndo(p);
             }
         }
         try {
             updateTurdles();
+         } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix Turdle concurrent mods! " + ex.toString());
+        }   
+        try {        
             updateRockets();
+                    } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix  Rocket concurrent mods! " + ex.toString());
+        }
+        try {
             updateExplosions();
+                    } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix Explosions concurrent mods! " + ex.toString());
+        }
+        try {
             // Network
             sendToAllConnectedSessions(createGamePacket());
         } catch(java.util.ConcurrentModificationException ex) {
-            InfoLog("Fix concurrent mods! " + ex.toString());
+            InfoLog("Fix connections concurrent mods! " + ex.toString());
         }
-        /*
-        for (Player p : players) {
-            String id = p.getId();
-            Session s = (Session) getSessionById(id);
-            sendToSession(s, createGamePacket(p));
+        
+        for (Player p : playerList) {
+            if (p.isMoved() || true){
+                JsonObject m = createTerrainMessage(p);
+                //System.out.println("Sending Terrain message to: " + p.getId());
+                if (m != null) {
+                    sendToSession(getSessionById(p.getId()), m);
+                }
+            }
         }
-        */
     }
 
     public void updatePlayerLocation(Player p) {
@@ -492,13 +547,17 @@ public class GameHandler extends GameState {
         if (p.isRight()) {
             p.MoveRight(delta);
         }
+        // Terrain.
+        double elevation = getTERRAIN().getHeight((double) p.getX(), (double) p.getZ());
+        p.setY((double) elevation + 1.0);
+        
     }
 
-    private void DetectCollisions() {
+    synchronized private void DetectCollisions() {
         try {
           hitboxHandler.DetectCollisions();
           for (String s : hitboxHandler.GetHitboxKeys()) {
-              InfoLog("XXXXXXXXXXXXXXXXXXXXXXXXXX Getting hitbox " + s);
+              //InfoLog("XXXXXXXXXXXXXXXXXXXXXXXXXX Getting hitbox " + s);
               Hitbox h = hitboxHandler.GetHitboxByName(s);
               if (h.is_hit) {  // a hit is a pair event but handled separately.
                 Model m = h.model;
@@ -526,6 +585,13 @@ public class GameHandler extends GameState {
           }
         } catch (java.lang.NullPointerException ex) {
           InfoLog("Null Pointer Exception " + ex.toString());
+        }
+        // rockets hit the ground sometimes.
+        for (String rocketid: this.ROCKETMANAGER.getModelIdsAsList()) {
+            Rocket r = this.ROCKETMANAGER.getModelById(rocketid);
+            if (r.HitTheGround(this.TERRAIN)) {
+                r.setDone();
+            }
         }
     }
 
@@ -565,5 +631,44 @@ public class GameHandler extends GameState {
                 .build();
         sendToAllConnectedSessions(logMessage);
         LOG.log(Level.INFO, msg);
+    }
+    
+        public JsonObject createTerrainTileMessage(String tilename) {
+        AbstractTerrain t = getTERRAIN().GetTile(tilename);
+        if (t == null) {
+            System.out.println("Ask for null tilename, get null json.");
+            return null;
+        }
+        JsonProvider provider = JsonProvider.provider();
+        JsonObject addMessage = provider.createObjectBuilder()
+                .add("msg_type", "tile")
+                .add("n", t.toJson())
+                .build();
+        return addMessage; 
+    }
+    
+    
+    private JsonObject createTerrainMessage(Player p) {
+        double x = (double) p.getX();
+        double y = (double) p.getZ();
+        int radius = 2;
+        JsonProvider provider = JsonProvider.provider();
+        JsonArrayBuilder jpatches = provider.createArrayBuilder();    
+        List<String> tpatches = getTERRAIN().GetTileNamesFor(x, y, radius);
+        //System.out.println("Getting tiles at: " + x + "," + y + ":" + radius + " = " + tpatches.size());
+        if (tpatches.isEmpty())
+        {
+            return null;
+        }
+        
+        tpatches.forEach((patch) -> {
+            jpatches.add(patch);
+        });
+ 
+        JsonObject addMessage = provider.createObjectBuilder()
+                .add("msg_type", "T")
+                .add("n", jpatches)
+                .build();
+        return addMessage;
     }
 }

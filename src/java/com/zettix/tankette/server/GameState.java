@@ -5,12 +5,15 @@
  */
 package com.zettix.tankette.server;
 
+import com.zettix.tankette.game.interfaces.GameStateInterface;
 import com.zettix.tankette.game.Explosion;
 import com.zettix.tankette.game.HitboxHandler;
 import com.zettix.tankette.game.ModelManager;
 import com.zettix.tankette.game.PlayerManager;
 import com.zettix.tankette.game.Rocket;
+import com.zettix.tankette.game.Terrain;
 import com.zettix.tankette.game.Turdle;
+import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
@@ -56,16 +59,21 @@ public class GameState implements GameStateInterface {
         return hitboxHandler;
     }
     
+    public AbstractTerrain getTERRAIN() {
+        return TERRAIN;
+    }
+    
     public Timer getTimer() { return timer;}
 
-    private final HashMap<String, Session> sessions;
-    private final Set players;
-    private final PlayerManager PLAYERMANAGER;
-    private final ModelManager<Rocket> ROCKETMANAGER;
-    private final Set<Turdle> TURDLES;
-    private final ModelManager<Explosion> EXPLOSIONMANAGER;
+    protected final HashMap<String, Session> sessions;
+    protected final Set players;
+    protected final PlayerManager PLAYERMANAGER;
+    protected final ModelManager<Rocket> ROCKETMANAGER;
+    protected final Set<Turdle> TURDLES;
+    protected final ModelManager<Explosion> EXPLOSIONMANAGER;
+    protected final AbstractTerrain TERRAIN;
     long now;
-    final private Timer timer;
+    final protected Timer timer;
     final HitboxHandler hitboxHandler;
     
     public GameState() {
@@ -76,6 +84,8 @@ public class GameState implements GameStateInterface {
       PLAYERMANAGER = new PlayerManager();
       ROCKETMANAGER = new ModelManager<>(this);
       TURDLES = new HashSet<>();
-      EXPLOSIONMANAGER = new ModelManager<>(this);   
+      EXPLOSIONMANAGER = new ModelManager<>(this);
+      TERRAIN = new Terrain();
+      System.out.println("GameState init done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 }

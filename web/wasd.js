@@ -36,6 +36,7 @@ WASD.Controls = function(object , domElement) {
    this.toggleCam = false;
    this.toggleTurdle = false;
    this.toggleFire = false;
+   this.toggleWireFrame = false;
    
    // mouse screen interface:
    this.numCellsX = 3;
@@ -139,6 +140,7 @@ WASD.Controls = function(object , domElement) {
     this.toggleCam = false;
     this.toggleTurdle = false;
     this.toggleFire = false;
+    
   };
 
   this.onMouseMove = function(event) {
@@ -199,6 +201,7 @@ Key Code Table  32 | space
       case 84: /*T*/ this.toggleTurdle = value; break;
       case 70: /*F*/
       case 32: /* */ this.toggleFire = value; break;
+      case 88: /*X*/ this.toggleWireFrame = value; break;
       default: break;
     }
   };

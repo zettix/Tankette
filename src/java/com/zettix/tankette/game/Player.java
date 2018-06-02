@@ -1,6 +1,6 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this templ ate file, choose Tools | Templates
  * and open the template in the editor.
  */
 package com.zettix.tankette.game;
@@ -15,7 +15,7 @@ import com.zettix.graphics.gjkj.util.V3;
  */
 public class Player extends Model {
     private String id;
-    public static long ONESEC = 1000l;  // milliseconds
+    public static long ONESEC = 300l;  // milliseconds
     public boolean toggleturdle, togglefire;
     public long shoot_timeout;
     public int hitpoints = 100;
@@ -26,13 +26,13 @@ public class Player extends Model {
         // Current model, from tank.js:
         //   this.hitbox_geo = new THREE.BoxGeometry(8, 4, 4.5);
         V3 dim = new V3(8.0, 4.0, 4.5);
-        M4 mover = new M4().Identity().Move(-4.0, .0, -2.25);
+        M4 mover = new M4().identity().move(-4.0, .0, -2.25);
         Hitbox h = new Hitbox(this);
         h.boxHull = new BoxHull(dim);
         h.boxHull.TransformObjectSpace(mover);
         setHitbox(h);
         
-        setVelocity(.02);
+        setVelocity(.08);
         setRotation_speed(0.001);
         setForward(false);
         setBack(false);
@@ -48,29 +48,36 @@ public class Player extends Model {
     // for axis-alighned tests.
     public void Invert(double[] points) {
         // first translate:
-        points[0] -= x;
-        points[1] -= x;
-        points[2] -= y;
-        points[3] -= y;
-        points[4] -= z;
-        points[5] -= z;
+        points[0] -= p.coords[0];
+        points[1] -= p.coords[0];
+        points[2] -= p.coords[1];
+        points[3] -= p.coords[1];
+        points[4] -= p.coords[2];
+        points[5] -= p.coords[2];
         // maybe z/y/x?
         // TODO rotations.
         
     }
         public void Transform(double[] points) {
         // first translate:
-        points[0] += x;
-        points[1] += x;
-        points[2] += y;
-        points[3] += y;
-        points[4] += z;
-        points[5] += z;
+        points[0] += p.coords[0];
+        points[1] += p.coords[0];
+        points[2] += p.coords[1];
+        points[3] += p.coords[1];
+        points[4] += p.coords[2];
+        points[5] += p.coords[2];
         // maybe z/y/x?
         // TODO rotations.
     }
         
     public void ResetShootTimeout(long now) {
         shoot_timeout = ONESEC + now;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer sb  = new StringBuffer("P:");
+        sb.append(super.toString());
+        return sb.toString();
     }
 }
