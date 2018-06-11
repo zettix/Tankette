@@ -37,6 +37,7 @@ public class ImageServelet extends HttpServlet {
     private int requestCount = 0;
     private DataBaseHandler db = null;
     private String table = null;
+    private String contentType = null;
     
     public void SetDb(DataBaseHandler dbin) {
         System.out.println("Setting DB for Image Server");
@@ -49,6 +50,12 @@ public class ImageServelet extends HttpServlet {
         db = new DataBaseHandler(TerrainConstants.getTerrainTexturePath(key));
         db.Connect();
         this.table = TerrainConstants.getTextureTable(key);
+        String imageExt = TerrainConstants.getImageFmt(key);
+        if (imageExt != null && imageExt.contains("jpg")) {            
+            contentType = "image/jpeg";
+        } else {
+            contentType = "image/png";
+        }
     }
     
     
@@ -59,15 +66,20 @@ public class ImageServelet extends HttpServlet {
             ConnectToDataBase();
         }
         String query = request.getQueryString();
+        System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ   request:" + query);
         String val = "No Image.";
         if (query != null && query.contains("image=") && query.length() > 10) {
              //response.setContentType("image/jpeg");
              val = query.substring(query.indexOf("image=") + 6);
              if (db != null) {
                  byte[] result = db.getBlob(this.table, val);
+                 if (result == null) {
+                   System.err.println("Not found!   request:" + query);   
+                 }
                  int isize = result.length;
                  if (isize > 0) {
-                     response.setContentType("image/jpeg");
+                     
+                     response.setContentType(contentType);
                      response.setContentLength(isize);
                      //try {
                         OutputStream out = response.getOutputStream();

@@ -19,6 +19,8 @@ var packet_length = 0;  // pre format: 480 for 3 players.
 var zerovec = new THREE.Vector3(0, 0, 0);
 renderer.shadowMap.enabled = true;
 renderer.shadowMapSoft = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
 console.log("Main init");
 var playerManager = new tankette.PlayerManager("T34", scene);
 var rocketManager = new tankette.ModelManager("rocket1opt", tankette.Rocket, scene);
@@ -32,13 +34,6 @@ console.log("Rocket manager:" + rocketManager);
 console.log("Explosion manager:" + explosionManager);
 console.log("Turdle manager:" + turdleManager);
 console.log("Terrain Manager: " + terrainManager);
-
-var ResetCamera = function() {
-  camera.position.z = -26;
-  camera.position.y = 14;
-  camera.position.x = -26;
-  camera.lookAt(zerovec);
-};
 
 var clock = new THREE.Clock();
 
@@ -67,18 +62,31 @@ if (false) {
   spot1.shadow.camera.fov = 30;
 }
 
+var sunlight =  new THREE.DirectionalLight( 0xffffff, 1, 100 );
+sunlight.position.set( 1, 1, 1 ); 			//default; light shining from top
+sunlight.castShadow = true;            // default false
+scene.add( sunlight );
+//Set up shadow properties for the light
+sunlight.shadow.mapSize.width = 512;  // default
+sunlight.shadow.mapSize.height = 512; // default
+sunlight.shadow.camera.near = 0.5;    // default
+sunlight.shadow.camera.far = 500;     // default
+
+var helper = new THREE.CameraHelper(sunlight.shadow.camera );
+scene.add( helper );
+
 var terrain = new tankette.Terrain();
 
 var boxgeo = new THREE.BoxGeometry(2, 2, 2);
 var redmat = new THREE.MeshLambertMaterial( {color: 0xff0000});
 var cube = new THREE.Mesh(boxgeo, redmat);
-cube.position.set(6, 0, -6);
+cube.position.set(1, 1 , 1);
 cube.castShadow = true;
 cube.receiveShadow = true;
 //var planegeo = new THREE.PlaneGeometry(40, 40, 10, 10);
 var greenmat = new THREE.MeshLambertMaterial( {color: 0x22ff22});
 
-scene.add(spot1);
+//scene.add(spot1);
 //scene.add(terrain.group);
 scene.add(cube);
 
@@ -86,21 +94,19 @@ var controls = new WASD.Controls(undefined);
 controls.movementSpeed = 5;
 controls.lookSpeed = 0.05;
 
-var chasecam = new tankette.ChaseCam(undefined, camera);
-ResetCamera();
-var use_chase_cam = true;
-var can_change_cam = true;
+var chasecam = new tankette.ChaseCam(undefined, controls, camera);
+chasecam.ResetCamera();
+playerManager.SetCam(chasecam);
+
 var update_timeout = 0;
 var can_wireframe = false;
 var use_wireframe = false;
-
 
 var skybox = new tankette.SkyBox(scene);
 var textout = new tankette.Text();
 textout.loadFont();
 
 var websocket_packet_txt = "";
-
 
 var pushBox = function() {
     // I have no idea what this does.
@@ -128,28 +134,8 @@ var Update = function() {
   WireFrameUpdate();
   terrain.update();
   textout.update();
+  //chasecam.CamUpdate();
   pushButtons(controls);
-};
-
-var CamUpdate = function() {
-  if (controls.toggleCam === true) {
-    if (can_change_cam === true) {
-      if (use_chase_cam === true) {
-        use_chase_cam = false;
-      } else {
-        use_chase_cam = true;
-      }
-      can_change_cam = false;
-    }
-  } else {
-    can_change_cam = true;
-  }
-  if (use_chase_cam === true) {
-    chasecam.Update();
-  } else {
-    ResetCamera();
-  }
-  //rocket1.group.rotation.y  += 0.01;
 };
 
 // all this jazz is to make a T flip flop.

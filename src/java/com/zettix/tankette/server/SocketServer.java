@@ -61,25 +61,31 @@ public class SocketServer {
             if (null != msg) switch (msg) {
                 case "but":
                     String playerid = session.getId();
-                    Player p = sessionHandler.getPlayerById(playerid);
-                    /*  Do not trust the player to send position info.
-                    InfoLog("Got info ZZZZZZZZZ"); */
-                    p.setForward(jsonMessage.getBoolean("F"));
-                    p.setBack(jsonMessage.getBoolean("B"));
-                    p.setLeft(jsonMessage.getBoolean("L"));
-                    p.setRight(jsonMessage.getBoolean("R"));
-                    p.toggleturdle = jsonMessage.getBoolean("T");
-                    p.togglefire =jsonMessage.getBoolean("A");
-                    //sessionHandler.updatePlayerLocation(
-                    //        sessionHandler.getPlayerById(playerid));
-                    //sessionHandler.LogHits();
-                    String tilename = jsonMessage.getString("t");
-                    if (tilename != null && tilename.length() > 0) {
-                      //System.out.println("Creating packet for tile " + tilename);
-                      JsonObject json = sessionHandler.createTerrainTileMessage(tilename);
-                      sessionHandler.sendToSession(session, json);
+                    if (playerid != null && playerid.length() > 0) {
+                        Player p = sessionHandler.getPlayerById(playerid);
+                        if (p != null) {
+                            /*  Do not trust the player to send position info.
+                            InfoLog("Got info ZZZZZZZZZ"); */ 
+                            // TODO(sean): make defensive copy of player
+                            p.setForward(jsonMessage.getBoolean("F"));
+                            p.setBack(jsonMessage.getBoolean("B"));
+                            p.setLeft(jsonMessage.getBoolean("L"));
+                            p.setRight(jsonMessage.getBoolean("R"));
+                            p.toggleturdle = jsonMessage.getBoolean("T");
+                            p.togglefire = jsonMessage.getBoolean("A");
+                            //sessionHandler.updatePlayerLocation(
+                            //        sessionHandler.getPlayerById(playerid));
+                            //sessionHandler.LogHits();
+                            String tilename = jsonMessage.getString("t");
+                            if (tilename != null && tilename.length() > 0) {
+                                //System.out.println("Creating packet for tile " + tilename);
+                                JsonObject json = sessionHandler.createTerrainTileMessage(tilename);
+                                sessionHandler.sendToSession(session, json);
+                            }
+                        }
                     }
                     break;
+                    
                 default:
                     break;
             }

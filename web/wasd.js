@@ -30,6 +30,12 @@ WASD.Controls = function(object , domElement) {
    this.moveBackward = false;
    this.moveLeft = false;
    this.moveRight = false;
+   this.camForward = false;
+   this.camBackward = false;
+   this.camUp = false;
+   this.camDown = false;
+   this.camLeft = false;
+   this.camRight = false;
    this.b1_down = false;
    this.b2_down = false;
    this.b3_down = false;
@@ -137,6 +143,12 @@ WASD.Controls = function(object , domElement) {
     this.moveBackward = false;
     this.moveLeft = false;
     this.moveRight = false;
+    this.camForward = false;
+    this.camBackward = false;
+    this.camDown = false;
+    this.camLeft = false;
+    this.camRight = false;
+    this.camUp = false;
     this.toggleCam = false;
     this.toggleTurdle = false;
     this.toggleFire = false;
@@ -189,19 +201,21 @@ Key Code Table  32 | space
 
   this.onKeyBool = function( event, value) {
     switch ( event.keyCode ) {
-      case 38: /*up*/
+      case 38: /*up*/ this.camForward = value; break;
       case 87: /*W*/ this.moveForward = value; break;
-      case 37: /*left*/
+      case 37: /*left*/ this.camLeft = value; break;
       case 65: /*A*/ this.moveLeft = value; break;
-      case 40: /*down*/
+      case 40: /*down*/ this.camBackward = value; break;
       case 83: /*S*/ this.moveBackward = value; break;
-      case 39: /*right*/
+      case 39: /*right*/ this.camRight = value; break;
       case 68: /*D*/ this.moveRight = value; break;
       case 67: /*C*/ this.toggleCam = value; break;
       case 84: /*T*/ this.toggleTurdle = value; break;
       case 70: /*F*/
       case 32: /* */ this.toggleFire = value; break;
       case 88: /*X*/ this.toggleWireFrame = value; break;
+      case 79: /*O*/ this.camUp = value; break;
+      case 80: /*P*/ this.camDown = value; break;
       default: break;
     }
   };
@@ -242,35 +256,43 @@ Key Code Table  32 | space
   };
 
   // cleanup, called when?
+  this.listenDown = function() {
+    this.domElement.removeEventListener( 'contextmenu', this._contextmenu, false );
+    this.domElement.removeEventListener( 'mousedown', this._onMouseDown, false );
+    this.domElement.removeEventListener( 'mousemove', this._onMouseMove, false );
+    this.domElement.removeEventListener( 'mouseup', this._onMouseUp, false );
+    window.removeEventListener( 'keydown', this._onKeyDown, false );
+    window.removeEventListener( 'keyup', this._onKeyUp, false );
+  };
+
   this.dispose = function() {
-    this.domElement.removeEventListener( 'contextmenu', _contextmenu, false );
-    this.domElement.removeEventListener( 'mousedown', _onMouseDown, false );
-    this.domElement.removeEventListener( 'mousemove', _onMouseMove, false );
-    this.domElement.removeEventListener( 'mouseup', _onMouseUp, false );
-    window.removeEventListener( 'keydown', _onKeyDown, false );
-    window.removeEventListener( 'keyup', _onKeyUp, false );
+    this.listenDown();
   };
 
   // Actual binds to dom/browser magic.
-  var _onMouseMove = bind( this, this.onMouseMove );
-  var _onMouseDown = bind( this, this.onMouseDown );
-  var _onMouseUp = bind( this, this.onMouseUp );
-  var _onKeyDown = bind( this, this.onKeyDown );
-  var _onKeyUp = bind( this, this.onKeyUp );
-  var _contextmenu = bind(this, this.contextmenu);
+  this._onMouseMove = bind( this, this.onMouseMove );
+  this._onMouseDown = bind( this, this.onMouseDown );
+  this._onMouseUp = bind( this, this.onMouseUp );
+  this._onKeyDown = bind( this, this.onKeyDown );
+  this._onKeyUp = bind( this, this.onKeyUp );
+  this._contextmenu = bind(this, this.contextmenu);
 
-  this.domElement.addEventListener( 'contextmenu', _contextmenu, false );
-  this.domElement.addEventListener( 'mousemove', _onMouseMove, false );
-  this.domElement.addEventListener( 'mousedown', _onMouseDown, false );
-  this.domElement.addEventListener( 'mouseup', _onMouseUp, false );
-  window.addEventListener( 'keydown', _onKeyDown, false );
-  window.addEventListener( 'keyup', _onKeyUp, false );
+  this.listenUp = function() {
+    this.domElement.addEventListener( 'contextmenu', this._contextmenu, false );
+    this.domElement.addEventListener( 'mousemove', this._onMouseMove, false );
+    this.domElement.addEventListener( 'mousedown', this._onMouseDown, false );
+    this.domElement.addEventListener( 'mouseup', this._onMouseUp, false );
+    window.addEventListener( 'keydown', this._onKeyDown, false );
+    window.addEventListener( 'keyup', this._onKeyUp, false );
+  };
 
   function bind( scope, fn ) {
     return function () {
       fn.apply( scope, arguments );
     };
   };
+
+  this.listenUp();
 
   this.handleResize();
 };
