@@ -75,7 +75,7 @@ public class GameHandler extends GameState {
         this.delayseconds = 2l;
         this.rnd = new Random();
         now = System.currentTimeMillis();
-        this.TERRAIN.setSize(10000.0, 10000.0).setPosition(new V3(0.0, 0, 0.0)).ConnectDatabase("burb");
+        this.TERRAIN.setSize(20000.0, 10000.0).setPosition(new V3(0.0, 0, 0.0)).ConnectDatabase(null);
         this.ScheduleRunMe();
     }
 
@@ -164,22 +164,25 @@ public class GameHandler extends GameState {
     }
     
     public void sendToSession(Session session, JsonObject message) {
+        String sid = null; 
         try {
+            sid = session.getId();
             session.getBasicRemote().sendText(message.toString());
         } catch (IOException | IllegalStateException | NullPointerException ex) {
             try {
-                String sid = session.getId();
                 if (sid != null && sid.length() > 0) {
+                    removePlayer(sid);
                     getSessions().remove(sid);
+                    
                 }
             } catch (NullPointerException e2) {
                 Logger.getLogger(GameHandler.class.getName()).log(Priority.INFO, "Oh no! Null pointer!" + ex);
             }
-               getSessions().remove(session.getId());
-            removePlayer(session.getId());
+            // getSessions().remove(session.getId());  // crash null pointer.
             // Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
         }
     }
+    
     public synchronized void removeSession(Session session) {
         String playerid = session.getId();
         removePlayer(playerid);
@@ -197,11 +200,13 @@ public class GameHandler extends GameState {
 
     public synchronized void addPlayer(Session s) {
         Player p = new Player();
+        double centerx = TERRAIN.getXSize() / 2.0;
+        double centery = TERRAIN.getYSize() / 2.0;
         double randy = rnd.nextDouble();
         System.out.println("Randy: " + randy);
-        p.setX(randy * 10.0f);
+        p.setX(randy * 100.0f + centerx);
         p.setY(0.0f);
-        p.setZ(rnd.nextDouble() * 10.0f);
+        p.setZ(rnd.nextDouble() * 100.0f + centery) ;
         p.setXr(0.0f);
         p.setYr(rnd.nextDouble() * 3.14f);
         p.setZr(0.0f);
@@ -301,8 +306,8 @@ public class GameHandler extends GameState {
         JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
        
         // PLAYERS
-        List players = getPLAYERMANAGER().getPlayerIdsAsList();
-        for (Iterator it = players.iterator(); it.hasNext();) {
+        List<String> playersList = getPLAYERMANAGER().getPlayerIdsAsList();
+        for (Iterator it = playersList.iterator(); it.hasNext();) {
             Player p = (Player) getPLAYERMANAGER().getPlayerById((String) it.next());
 
             int collision = 0;
@@ -548,8 +553,10 @@ public class GameHandler extends GameState {
             p.MoveRight(delta);
         }
         // Terrain.
-        double elevation = getTERRAIN().getHeight((double) p.getX(), (double) p.getZ());
-        p.setY((double) elevation + 1.0);
+        double elevation = getTERRAIN().getHeight(p.getX(), p.getZ());
+        V3 tn = getTERRAIN().getNormal(p.getX(), p.getZ());
+        p.clampToTerrain(elevation, tn);
+        //p.setY((double) elevation + 1.0);
         
     }
 
@@ -589,7 +596,7 @@ public class GameHandler extends GameState {
         // rockets hit the ground sometimes.
         for (String rocketid: this.ROCKETMANAGER.getModelIdsAsList()) {
             Rocket r = this.ROCKETMANAGER.getModelById(rocketid);
-            if (r.HitTheGround(this.TERRAIN)) {
+            if (r != null && r.HitTheGround(this.TERRAIN)) {
                 r.setDone();
             }
         }
@@ -633,7 +640,7 @@ public class GameHandler extends GameState {
         LOG.log(Level.INFO, msg);
     }
     
-        public JsonObject createTerrainTileMessage(String tilename) {
+    public JsonObject createTerrainTileMessage(String tilename) {
         AbstractTerrain t = getTERRAIN().GetTile(tilename);
         if (t == null) {
             System.out.println("Ask for null tilename, get null json.");
@@ -651,7 +658,7 @@ public class GameHandler extends GameState {
     private JsonObject createTerrainMessage(Player p) {
         double x = (double) p.getX();
         double y = (double) p.getZ();
-        int radius = 2;
+        int radius = 4;
         JsonProvider provider = JsonProvider.provider();
         JsonArrayBuilder jpatches = provider.createArrayBuilder();    
         List<String> tpatches = getTERRAIN().GetTileNamesFor(x, y, radius);

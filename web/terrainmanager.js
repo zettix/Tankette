@@ -158,6 +158,7 @@ tankette.TerrainManager = function(scene) {
               mat.wireframe = true;
             }
             var mesh = new THREE.Mesh( geo, mat );
+            mesh.receiveShadow = true;
             group.add(mesh);
             scene.add(group );
             

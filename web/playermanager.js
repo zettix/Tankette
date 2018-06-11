@@ -8,6 +8,7 @@
 /* global THREE */
 /* global controls */
 /* global chasecam */
+/* global CamUpdate */
 
 var tankette = tankette = tankette || {};
 
@@ -17,7 +18,11 @@ tankette.PlayerManager = function(model, scene) {
     var players = {};
     var model_ = model;
     this.myself = THREE.Object3D();
-    var self = this;
+    this.cam = {};
+    
+    this.SetCam = function(chasey) {
+        this.cam = chasey;
+    };
     
     this.RegisterWithServer = function(playerid) {
       console.log("Checking registered player " + playerid);
@@ -92,6 +97,8 @@ tankette.PlayerManager = function(model, scene) {
       } else {
           console.log("Error! Update player not found:" + playerid);
       }
-      CamUpdate();
+      //if (this.cam.hasOwnProperty("CamUpdate")) {
+        this.cam.CamUpdate();
+      //}
     };
 };

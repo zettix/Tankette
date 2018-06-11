@@ -10,9 +10,11 @@ package com.zettix.tankette.game;
  * @author sean
  */
 import com.zettix.graphics.gjkj.util.V3;
+import com.zettix.graphics.gjkj.util.vecstuff;
 import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Arrays;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -26,6 +28,8 @@ public final class TerrainTile extends AbstractTerrain {
   public final double ry;              
   private final double rx_1;
   private final double ry_1;
+  private final double c__rx;
+  private final double c__ry;
   public final int c;              
   public final String url;              
   public final String name;              
@@ -35,6 +39,19 @@ public final class TerrainTile extends AbstractTerrain {
   private static double last = 0.0f;
   private final String TTF = "%3.2f";
   public final static DecimalFormat FIVE_TWO_FORMAT = new DecimalFormat("##0.00");
+  
+  private TerrainTile() {
+      rx = 0.0;
+      ry = 0.0;
+      rx_1 = 0.0;
+      ry_1 = 0.0;
+      c__rx = 0.0;
+      c__ry = 0.0;
+      c = 0;
+      url = null;
+      name = null;
+      data = null;
+  };
 
   public TerrainTile(final double x,final  double y,final double z, final double rx,
               final double ry, final int c, final String url, final String name,
@@ -49,10 +66,63 @@ public final class TerrainTile extends AbstractTerrain {
      this.json = null;
      rx_1 = 1.0f / rx;
      ry_1 = 1.0f / ry;
+     c__rx = rx / (float) (c - 1);
+     c__ry = ry / (float) (c - 1);
      toJson();
      lastAccess = System.currentTimeMillis();
      // System.out.println("ME! "  + this);
   }
+  
+  public static AbstractTerrain copy(AbstractTerrain other) {
+      TerrainTile t = (TerrainTile) other;
+      double[] dater = Arrays.copyOf(t.data, t.data.length);
+      
+      TerrainTile c = new TerrainTile(
+              t.p.coords[0],
+              t.p.coords[1],
+              t.p.coords[2],
+              t.rx,
+              t.ry,
+              t.c,
+              t.url,
+              t.name,
+              dater);
+      
+      c.toJson();
+      return c;
+  }
+  
+  public V3 getNormal(double xi, double yi) {
+    double x0 = (xi - p.coords[0]) * rx_1;   // (xi - x) / rx -> 0...1
+    double y0 = (yi - p.coords[2]) * ry_1;   // (yi - y) / ry -> 0...1
+    double cell_width = (double) (c -1);
+    double cx0 = (double) cell_width * x0; // [0...c, 0...c]
+    double cy0 = (double) cell_width * y0;
+
+    int icx0 = (int) cx0;   // floor of cx
+    int icy0 = (int) cy0;
+
+    int i00 = icx0 + icy0 * c;
+    int i10 = icx0 + 1 + icy0 * c;
+    int i01 = icx0 + (icy0 + 1) * c;
+  
+    double n0y = data[i00]; // 00
+    double n1y = data[i01];// 01
+    double n2y = data[i10]; // 10
+    double n0x = xi;
+    double n0z = yi;
+    double n1x = xi;
+    double n1z = yi + c__ry;
+    double n2x = xi + c__rx;
+    double n2z = yi;
+    V3 n1 = new V3(n1x - n0x, n1y - n0y, n1z - n0z);
+    V3 n2 = new V3(n2x - n0x, n2y - n0y, n2z - n0z);
+    V3 nxn = vecstuff.cross(n1, n2);
+    double nxnl = vecstuff.dot(nxn, nxn);
+    nxn.ScalarMultiply(1.0/nxnl);
+    return nxn;
+  }
+  
   
   @Override
   public String toString() {

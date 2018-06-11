@@ -16,7 +16,12 @@ import javax.json.JsonObject;
 
 
 public abstract class AbstractTerrain {
-
+    
+    
+    public static AbstractTerrain copy(AbstractTerrain other) {
+       throw new UnsupportedOperationException();
+    }
+    
     /** Get height at specified location.
      * 
      * Note this is normally X, Z in (X,Y,Z) 3D to (X,Y) 2D lookup.
@@ -48,6 +53,25 @@ public abstract class AbstractTerrain {
      */
     public AbstractTerrain setSize(double x, double y) {
         throw new UnsupportedOperationException();
+    
+    }
+
+    /** getXSize() return the X size of the tile.
+     *
+     * @return x size of tile.
+     */
+    public double getXSize() {
+        throw new UnsupportedOperationException();
+
+    }
+
+    /** getYSize() return the Y size of the tile.
+     *
+     * @return y size of tile.
+     */
+    public double getYSize() {
+        throw new UnsupportedOperationException();
+
     }
     
     /** Set 3-D Position of terrain.

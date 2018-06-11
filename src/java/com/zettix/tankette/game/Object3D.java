@@ -52,6 +52,11 @@ public class Object3D implements Object3dInterface {
         s = 1.0;
         id = "None";
     }
+     
+    public void clampToTerrain(double groundlevel, V3 groundNormal) {
+       setY((double) groundlevel + 1.0);   
+       
+    }
     
     public Object3D copy(Object3D copyFrom){
         // B O R I N G

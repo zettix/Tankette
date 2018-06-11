@@ -64,6 +64,7 @@ public final class Terrain extends AbstractTerrain {
    private double xTilesPerDim = 0.0;
    private double yTilesPerDim = 0.0;
    private DataBaseHandler dataBaseHandler;
+   private String imgFmt = null;
    
    public Terrain() {
     this.tiles = new LRU<>(25, 0.75f, maxTiles);
@@ -73,6 +74,14 @@ public final class Terrain extends AbstractTerrain {
        this.xDim = x;
        this.yDim = y;
        return this;
+   }
+   
+   public double getXSize() {
+       return this.xDim;
+   }
+   
+   public double getYSize() {
+       return this.yDim;
    }
    
    public AbstractTerrain setPosition(V3 p) {
@@ -112,6 +121,7 @@ public final class Terrain extends AbstractTerrain {
     dataBaseHandler.getManifest();
     int dx = dataBaseHandler.getX();
     int dy = dataBaseHandler.getY();
+    imgFmt = TerrainConstants.getImageFmt(dbKey);
     System.out.println("Database Loaded with X: " + dx + " and Y: " + dy );
     System.out.println("Loading the terrain manager");
     xTileCount = dx;
@@ -139,7 +149,9 @@ public final class Terrain extends AbstractTerrain {
       //String url = String.format("/BoxMove/images/image_%d_%d.jpg", px, py);
       // With the database endpoint:
       //     localhost:8080/BoxMove/ImageServelet?image=image_0_9.jpg
-      String url = String.format("/Tankette/ImageServelet?image=image_%d_%d.jpg", px, py);
+      String smallname = String.format("%d_%d", px, py);
+      String imgpart = String.format(imgFmt, smallname);
+      String url = String.format("/Tankette/ImageServelet?image=%s", imgpart);
       try {
         InputStream stream;
         if (dbLoad) {
@@ -154,7 +166,7 @@ public final class Terrain extends AbstractTerrain {
         double[] d = new double[count * count];
         for (int j = 0; j < count * count; j++) {
             // Important change.  Database is now int16s.
-            d[j] = ((double) f.readShort());
+            d[j] = -100.0 + ((double) f.readShort()) * 0.004;
             
             // d[j] = (double) f.readFloat() * 0.9f;  // scaled down?
         }
@@ -205,19 +217,33 @@ public final class Terrain extends AbstractTerrain {
     if (tilename == null) return null;
     
     AbstractTerrain t = null;
-    if (tiles.containsKey(tilename)) {
-      t = tiles.get(tilename);
-    } else {
-      tiles.put(tilename, t);
+    AbstractTerrain res = null;
+    synchronized (tiles) {
+        if (tiles.containsKey(tilename)) {
+            t = tiles.get(tilename);
+            if (t != null) res = TerrainTile.copy(t);
+        } else {
+            tiles.put(tilename, t);
+        }
+        // System.out.println("here is teh tiule: " + t);
+        if (t == null) {
+            t = FullLoad(tilename);
+            if (t != null) res = TerrainTile.copy(t);
+        }
+        // this is in an ALU, so better copy it.
     }
-    // System.out.println("here is teh tiule: " + t);
-    if (t == null) {
-        return FullLoad(tilename);
-    } else {
-        return t;
-    }
+    return res;
   }
 
+  public V3 getNormal(double xi, double yi) {
+    AbstractTerrain t = GetTile(xi, yi);
+    if (null == t) {
+        return new V3(0.0, 1.0, 0.0);
+    } 
+    return t.getNormal(xi, yi);
+  }
+  
+  
   public double getHeight(double xi, double yi) {
     AbstractTerrain t = GetTile(xi, yi);
     if (null == t) {
