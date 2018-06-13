@@ -28,6 +28,18 @@ tankette.ChaseCam = function(target, controls, chase_camera) {
     this.cam.position.x = -26;
     this.cam.lookAt(zerovec);
   };
+  
+    this.camReset = function () {
+        this.offset_x = 14.0;
+        this.offset_y = 7.0;
+        this.offset_z = 0.0;
+        this.look_x = 0.0;
+        this.look_y = 0.0;
+        this.look_z = 0.0;
+        this.inc = 0.3;
+        this.can_change_cam = true;
+        this.use_chase_cam = true;
+    };
 
   this.CamUpdate = function() {
     if (controls.toggleCam === true) {
@@ -74,6 +86,16 @@ tankette.ChaseCam = function(target, controls, chase_camera) {
         this.offset_x += this.inc;
         this.look_x += this.inc;
     }
+    if (controls.camRaise) {
+        this.look_y -= this.inc;
+    }
+    if (controls.camLower) {
+        this.look_y += this.inc;
+    }
+    if (controls.camReset) {
+        this.camReset();
+    }
+    
     var CamPos = new THREE.Vector3(this.offset_x, this.offset_y, this.offset_z);
     var AtPos = new THREE.Vector3(this.look_x, this.look_y, this.look_z);
     var Up = new THREE.Vector3(0.0, 1.0, 0.0);

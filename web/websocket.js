@@ -16,7 +16,7 @@
 console.log("Websocket init");
 
 //var socket = new WebSocket("ws://zettix.com:8889/Tankette/actions");
-var socket = new WebSocket("ws://172.16.7.125:8080/Tankette/actions");
+var socket = new WebSocket("ws://172.16.7.80:11565/Tankette/actions");
 socket.onmessage = onMessage;
 
 function onMessage(event) {
