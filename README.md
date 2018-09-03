@@ -20,9 +20,10 @@ a chase camera.  "f" or spacebar fires.  "t" makes "turdles" which are
 rotating/scaling copies of rockets for eye candy and testing.
 
 The following screenshot shows what a game session currently looks like.
-![Screenshot from 12/30/2016](https://github.com/zettix/Tankette/blob/master/resources/Screenshot%20from%202016-12-30%2014-49-17.png)
+
+![Tankette](https://github.com/zettix/Tankette/blob/master/resources/Tankette.png)
 
 Older video of "turdles" and hitbox integration:
-https://www.youtube.com/watch?v=Tmk1v1TiPVE
+https://www.youtube.com/watch?v=KdKjAcz8mmg
 
 ### Author: Sean Brennan, 2016
