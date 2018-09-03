@@ -109,6 +109,7 @@ public final class TerrainTile extends AbstractTerrain {
     double n0y = data[i00]; // 00
     double n1y = data[i01];// 01
     double n2y = data[i10]; // 10
+    //System.out.println("h0:" + n0y + " h01:" + n1y + " h10:" + n2y);
     double n0x = xi;
     double n0z = yi;
     double n1x = xi;
@@ -117,9 +118,13 @@ public final class TerrainTile extends AbstractTerrain {
     double n2z = yi;
     V3 n1 = new V3(n1x - n0x, n1y - n0y, n1z - n0z);
     V3 n2 = new V3(n2x - n0x, n2y - n0y, n2z - n0z);
+    //System.out.println("n1: " + n1.toString() + " n2:" + n2.toString());
     V3 nxn = vecstuff.cross(n1, n2);
+    //System.out.println("nxn:" + nxn.toString());
     double nxnl = vecstuff.dot(nxn, nxn);
-    nxn.ScalarMultiply(1.0/nxnl);
+    double nxnlsqrt = Math.sqrt(nxnl);
+    //System.out.println("nxnl:" + nxnl + " nxqsq" + nxnlsqrt);
+    nxn.ScalarMultiply(1.0/nxnlsqrt);
     return nxn;
   }
   

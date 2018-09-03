@@ -21,6 +21,7 @@ public class Explosion extends Model {
     private double max_scale = 1.0;
 
     public Explosion(long now, long boom_long, double maxie) {
+        super();
         explosion_length = boom_long;
         max_scale = maxie;
         start_time = now;

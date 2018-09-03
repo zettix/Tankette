@@ -22,9 +22,15 @@ renderer.shadowMapSoft = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
 console.log("Main init");
-var playerManager = new tankette.PlayerManager("T34", scene);
-var rocketManager = new tankette.ModelManager("rocket1opt", tankette.Rocket, scene);
-var explosionManager = new tankette.ModelManager("ballexplosion", tankette.Explosion, scene);
+var playerManager =     new tankette.PlayerManager("T34", scene, "t1");
+var explosionManager =  new tankette.ModelManager(
+                            "ballexplosion", tankette.Explosion, scene);
+var rocketManager =     new tankette.ModelManager(
+                            "rocket1opt", tankette.Rocket, scene);
+//var bikeManager =       new tankette.ModelManager(
+//                            "rocket1opt", tankette.Rocket, scene);
+var bikeManager = new tankette.ModelManager(
+                          "alien_on_a_bike", tankette.Bike, scene);
 var turdleManager = new tankette.TurdleManager("rocket1opt", scene);
 var dotManager = new tankette.DotManager("none", scene);
 var terrainManager = new tankette.TerrainManager(scene);
@@ -34,6 +40,7 @@ console.log("Rocket manager:" + rocketManager);
 console.log("Explosion manager:" + explosionManager);
 console.log("Turdle manager:" + turdleManager);
 console.log("Terrain Manager: " + terrainManager);
+console.log("Bike Manager: " + bikeManager);
 
 var clock = new THREE.Clock();
 
@@ -125,6 +132,7 @@ var Update = function() {
       console.log("Turdles: " + turdleManager.NumTurdles());
       console.log("Explosions:" + explosionManager.NumModels());
       console.log("Explosions " + explosionManager.Print());
+      console.log("Bikes:" + bikeManager.NumModels());
       console.log("Packet: " + websocket_packet_txt);
       console.log("Terrain" + terrainManager.Summary());
       console.log("Wireframe: " + use_wireframe);

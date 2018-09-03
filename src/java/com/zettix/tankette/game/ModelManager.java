@@ -10,8 +10,14 @@ import com.zettix.tankette.game.interfaces.Object3dInterface;
 import com.zettix.tankette.server.GameState;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,6 +27,8 @@ import java.util.List;
 public class ModelManager <T extends ModelInterface & Object3dInterface> {
     private final HashMap<String, T> models;
     private final GameState gameState;
+    
+    private static final Logger LOGGER = Logger.getLogger(ModelManager.class.getName());
     
     private long serial = 0l;
     
@@ -41,11 +49,16 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
         }
         return null;
     }
+    
+    public synchronized List<T> getModelsAsList() {
+        return new LinkedList<>(models.values());
+    }
 
     public synchronized void addModel(String id, T p) {
         if (models.containsKey(id)) {
             // TODO complain.
         } else {
+            LOGGER.log(Level.INFO, "Adding model:{0}", p.toString()); 
             models.put(id, p);
         }
     }
@@ -75,16 +88,23 @@ public class ModelManager <T extends ModelInterface & Object3dInterface> {
     }
     
     public synchronized void updateModels(long now, double delta) {
+        List<String> dellist = new LinkedList<>();
         for(T t : models.values()) {
             t.Update(now, delta);
             if (t.isDone()) {
                 String id = t.getId();
-                delModel(id);
+                LOGGER.info("Removing model:" + id + " :" + t.toString());
+                dellist.add(id);
             }
         }
+        dellist.forEach((id) -> {delModel(id);});
     }
 
     public List<String> getModelIdsAsList() {
        return new ArrayList<>(models.keySet());
+    }
+    
+    public int getModelCount() {
+        return models.size();
     }
 }

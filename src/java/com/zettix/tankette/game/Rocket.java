@@ -46,9 +46,7 @@ public class Rocket extends Model {
     }
     
     public Rocket() {
-        long now  = System.currentTimeMillis();
-        setStartTime(now);
-        setAgo(now);
+        super();
         setRadius(3.0);
         s = 1.0;
         Hitbox h = new Hitbox(this);
