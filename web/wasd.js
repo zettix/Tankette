@@ -36,6 +36,9 @@ WASD.Controls = function(object , domElement) {
    this.camDown = false;
    this.camLeft = false;
    this.camRight = false;
+   this.camRaise = false;
+   this.camLower = false;
+   this.camReset = false;
    this.b1_down = false;
    this.b2_down = false;
    this.b3_down = false;
@@ -149,6 +152,9 @@ WASD.Controls = function(object , domElement) {
     this.camLeft = false;
     this.camRight = false;
     this.camUp = false;
+    this.camRaise = false;
+    this.camLower = false;
+    this.camReset = false;
     this.toggleCam = false;
     this.toggleTurdle = false;
     this.toggleFire = false;
@@ -216,6 +222,9 @@ Key Code Table  32 | space
       case 88: /*X*/ this.toggleWireFrame = value; break;
       case 79: /*O*/ this.camUp = value; break;
       case 80: /*P*/ this.camDown = value; break;
+      case 75: /*K*/ this.camRaise = value; break;
+      case 76: /*L*/ this.camLower = value; break;
+      case 82: /*R*/ this.camReset = value; break;
       default: break;
     }
   };

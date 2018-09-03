@@ -11,6 +11,7 @@ import com.zettix.tankette.game.ModelManager;
 import com.zettix.tankette.game.PlayerManager;
 import com.zettix.tankette.game.Rocket;
 import com.zettix.tankette.game.Turdle;
+import com.zettix.tankette.game.Bike;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -24,6 +25,7 @@ public interface GameStateInterface {
     public Map<String, Session> getSessions();
     public Set getPlayers();
     public PlayerManager getPLAYERMANAGER();
+    public ModelManager<Bike> getBIKESMANAGER();
     public ModelManager<Rocket> getROCKETMANAGER() ;
     public Set<Turdle> getTURDLES();
     public ModelManager<Explosion> getEXPLOSIONMANAGER();

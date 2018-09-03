@@ -4,13 +4,10 @@
  * and open the template in the editor.
  */
 
-
-
 /* global playerlist */
 /* global THREE */
 /* global controls */
 /* global chasecam */
-
 
 var tankette = tankette = tankette || {};
 
@@ -41,5 +38,20 @@ tankette.DotManager = function(model, scene) {
       }
       this.players = [];
     };
-    
+
+    this.NetParse = function(jsonlist) {
+        if (jsonlist === undefined) return;
+
+            var in_dots = jsonlist;
+            if (in_dots !== undefined) {
+                dotManager.RemoveDots();
+                for (var i = 0; i < in_dots.length; i++) {
+                    var in_p = in_dots[i];
+                    dotManager.AddDot(
+                            parseFloat(in_p.x),
+                            parseFloat(in_p.y),
+                            parseFloat(in_p.z));
+                }
+            }
+    };
 };

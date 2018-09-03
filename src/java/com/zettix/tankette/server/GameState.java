@@ -10,6 +10,7 @@ import com.zettix.tankette.game.Explosion;
 import com.zettix.tankette.game.HitboxHandler;
 import com.zettix.tankette.game.ModelManager;
 import com.zettix.tankette.game.PlayerManager;
+import com.zettix.tankette.game.Bike;
 import com.zettix.tankette.game.Rocket;
 import com.zettix.tankette.game.Terrain;
 import com.zettix.tankette.game.Turdle;
@@ -37,6 +38,10 @@ public class GameState implements GameStateInterface {
 
     public PlayerManager getPLAYERMANAGER() {
         return PLAYERMANAGER;
+    }
+    
+    public ModelManager<Bike> getBIKESMANAGER() {
+        return BIKESMANAGER;
     }
 
     public ModelManager<Rocket> getROCKETMANAGER() {
@@ -68,6 +73,7 @@ public class GameState implements GameStateInterface {
     protected final HashMap<String, Session> sessions;
     protected final Set players;
     protected final PlayerManager PLAYERMANAGER;
+    protected final ModelManager<Bike> BIKESMANAGER;
     protected final ModelManager<Rocket> ROCKETMANAGER;
     protected final Set<Turdle> TURDLES;
     protected final ModelManager<Explosion> EXPLOSIONMANAGER;
@@ -82,6 +88,7 @@ public class GameState implements GameStateInterface {
       players = new HashSet<>();
       hitboxHandler = new HitboxHandler();
       PLAYERMANAGER = new PlayerManager();
+      BIKESMANAGER = new ModelManager<>(this);
       ROCKETMANAGER = new ModelManager<>(this);
       TURDLES = new HashSet<>();
       EXPLOSIONMANAGER = new ModelManager<>(this);

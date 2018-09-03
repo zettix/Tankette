@@ -20,6 +20,9 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
     var scene_ = scene;
     
     var loaded = true;
+    console.log("Model Manager for " + model_name + " reporting.");
+    //console.log("  model_fun:" + model_fun);
+    //console.log("  scene:" + scene_);
     
     this.NumModels = function() {
         return Object.keys(models).length;
@@ -82,11 +85,15 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
     };
     
     // incoming json packet from server
-    this.HandleUpdateList = function(jsonlist) {
+    this.NetParse = function(jsonlist) {
+        if (jsonlist === undefined) {
+            console.log("No packet for " + model_name);
+            return;
+        }
         var tmp_models = this.GetModelIds();
         var tmp_models_hash = {};
         if (tmp_models === undefined) {
-            console.log("No models yet");
+            console.log("No models yet for " + model_name);
         } else {
           for (var i = 0; i < tmp_models.length; i += 1) {
               tmp_models_hash[tmp_models[i]] = true;
@@ -108,6 +115,7 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
                     parseFloat(in_p.s));                        
                 delete tmp_models_hash[in_p.id];
             } else {  // new model
+                console.log("Adding model (" + model_name + "): " + in_p.id);
                 this.AddModel(
                     in_p.id,
                     parseFloat(in_p.x),
@@ -122,6 +130,7 @@ tankette.ModelManager = function(model_name, model_fun, scene) {
         var models_to_delete = Object.keys(tmp_models_hash);
         if (models_to_delete !== undefined) {
             for (var i = 0; i < models_to_delete.length; i += 1) {
+                console.log("Removing model: (" + model_name +" : " + models_to_delete[i]);
                 this.RemoveModel(models_to_delete[i]); 
             }
         }

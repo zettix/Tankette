@@ -52,9 +52,9 @@ public class TerrainConstants {
     static private Map<String, String> demTables = new HashMap<>();
     static private Map<String, String> textureTables = new HashMap<>();
     static private Map<String, String> imageFmt = new HashMap<>();
-    static private String terrainDefault = "vmars";
+    static private String terrainDefault = "tmars";
     static private String mpath = "/mnt/sunshine/vids/software/mine/tankette-maps/";
-    static private String tpath = "/mnt/1T/1/sean-cache/";
+    static private String tpath = "/home/sean/tankette-stuff/";
 
     static {        
         terrainDems.put(    "burb", "/var/tmp/tiffy/burb.db"); // height x

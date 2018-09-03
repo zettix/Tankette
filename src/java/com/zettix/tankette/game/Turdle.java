@@ -11,8 +11,8 @@ package com.zettix.tankette.game;
  */
 public class Turdle extends Model {    
     public Turdle() {
+        super();
         setRadius(3.0);
         setRotation_speed(0.1);
-        setAge(0);
     }
 }

@@ -61,7 +61,7 @@ public class PlayerManager {
         
         @Override
         public String toString() {
-            StringBuffer sb = new StringBuffer("Playermanger:\n");
+            StringBuilder sb = new StringBuilder("Playermanger:\n");
             for (Entry<String, Player> entry : players.entrySet()) {
                 sb.append(entry.getKey() + ":" + entry.getValue().toString());
             }

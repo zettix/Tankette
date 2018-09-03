@@ -41,7 +41,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
-import org.apache.log4j.*;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public final class Terrain extends AbstractTerrain {
 
@@ -49,7 +52,7 @@ public final class Terrain extends AbstractTerrain {
    private static final String MANIFEST = "files";
    private static final Pattern DATA_RE = Pattern.compile(
        "data_(\\d+)_(\\d+).dat");
-   private final Logger LOG = Logger.getLogger(Terrain.class);
+   private final Logger LOG = Logger.getLogger(Terrain.class.getName());
    private final int maxTiles = 127;  // tune this.
    private final Map<String, AbstractTerrain> tiles; // LRU
    private double xRoot = 0.0;
@@ -166,7 +169,7 @@ public final class Terrain extends AbstractTerrain {
         double[] d = new double[count * count];
         for (int j = 0; j < count * count; j++) {
             // Important change.  Database is now int16s.
-            d[j] = -100.0 + ((double) f.readShort()) * 0.004;
+            d[j] = -100.0 + ((double) f.readShort()) * 0.013;
             
             // d[j] = (double) f.readFloat() * 0.9f;  // scaled down?
         }

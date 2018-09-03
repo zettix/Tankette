@@ -21,6 +21,7 @@ public class Player extends Model {
     public int hitpoints = 100;
     
     public Player() {
+        super();
         setCollider(Collider.TANK);
         setRadius(6.0);
         // Current model, from tank.js:
@@ -42,32 +43,6 @@ public class Player extends Model {
         toggleturdle = false;
         togglefire = false;
         shoot_timeout = 0;
-    }
-    
-    // Transform 6 points (collision box) to player space
-    // for axis-alighned tests.
-    public void Invert(double[] points) {
-        // first translate:
-        points[0] -= p.coords[0];
-        points[1] -= p.coords[0];
-        points[2] -= p.coords[1];
-        points[3] -= p.coords[1];
-        points[4] -= p.coords[2];
-        points[5] -= p.coords[2];
-        // maybe z/y/x?
-        // TODO rotations.
-        
-    }
-        public void Transform(double[] points) {
-        // first translate:
-        points[0] += p.coords[0];
-        points[1] += p.coords[0];
-        points[2] += p.coords[1];
-        points[3] += p.coords[1];
-        points[4] += p.coords[2];
-        points[5] += p.coords[2];
-        // maybe z/y/x?
-        // TODO rotations.
     }
         
     public void ResetShootTimeout(long now) {

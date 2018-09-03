@@ -87,4 +87,30 @@ public class Object3D implements Object3dInterface {
             .append(r.coords[2]).append(">");        
         return sb.toString();
     }
+    
+    // Transform 6 points (collision box) to player space
+    // for axis-aligned tests.
+    public void Invert(double[] points) {
+        // first translate:
+        points[0] -= p.coords[0];
+        points[1] -= p.coords[0];
+        points[2] -= p.coords[1];
+        points[3] -= p.coords[1];
+        points[4] -= p.coords[2];
+        points[5] -= p.coords[2];
+        // maybe z/y/x?
+        // TODO rotations.    
+    }
+    
+    public void Transform(double[] points) {
+        // first translate:
+        points[0] += p.coords[0];
+        points[1] += p.coords[0];
+        points[2] += p.coords[1];
+        points[3] += p.coords[1];
+        points[4] += p.coords[2];
+        points[5] += p.coords[2];
+        // maybe z/y/x?
+        // TODO rotations.
+    }
 }

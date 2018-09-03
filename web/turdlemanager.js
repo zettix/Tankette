@@ -69,4 +69,53 @@ tankette.TurdleManager = function(model, scene) {
           console.log("Error! Update turdle not found:" + playerid);
       }
     };
+
+    this.NetParse = function(jsonlist) {
+      if (jsonlist === undefined) return;
+      var tmp_turdles = this.GetTurdleIds();
+      var tmp_turdles_hash = {};
+      if (tmp_turdles === undefined) {
+        console.log("No turdles yet");
+      } else {
+        for (var i = 0; i < tmp_turdles.length; i += 1) {
+          tmp_turdles_hash[tmp_turdles[i]] = true;
+        }
+      }
+      var in_turdles = jsonlist;
+      //console.log("Turdle# " + in_turdles.length);
+      if (in_turdles !== undefined) {
+        for (var i = 0; i < in_turdles.length; i += 1) {
+          var in_p = in_turdles[i];
+          if (tmp_turdles_hash.hasOwnProperty(in_p.id)) {
+                this.UpdateTurdle(
+                        in_p.id,
+                        parseFloat(in_p.x),
+                        parseFloat(in_p.y),
+                        parseFloat(in_p.z),
+                        parseFloat(in_p.xr),
+                        parseFloat(in_p.yr),
+                        parseFloat(in_p.zr),
+                        parseFloat(in_p.s));
+
+              delete tmp_turdles_hash[in_p.id];
+          } else {  // new turdle
+              this.AddTurdle(
+                        in_p.id,
+                        parseFloat(in_p.x),
+                        parseFloat(in_p.y),
+                        parseFloat(in_p.z),
+                        parseFloat(in_p.xr),
+                        parseFloat(in_p.yr),
+                        parseFloat(in_p.zr),
+                        parseFloat(in_p.s));
+          }
+        }
+      }
+      var turdles_to_delete = Object.keys(tmp_turdles_hash);
+      if (turdles_to_delete !== undefined) {
+        for (var i = 0; i < turdles_to_delete.length; i += 1) {
+                 this.RemoveTurdle(turdles_to_delete[i]);
+        }
+      }
+    };
 };

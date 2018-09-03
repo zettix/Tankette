@@ -14,9 +14,11 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.websocket.Session;
 import com.zettix.tankette.game.Player;
+import com.zettix.tankette.game.Bike;
 import com.zettix.tankette.game.Rocket;
 import com.zettix.tankette.game.Turdle;
 import com.zettix.tankette.game.interfaces.AbstractTerrain;
+import com.zettix.tankette.game.interfaces.Object3dInterface;
 import java.io.IOException;
 import java.text.DecimalFormat;
 // import java.math.BigDecimal;
@@ -27,10 +29,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.apache.log4j.*;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.spi.JsonProvider;
 
 /**
@@ -47,9 +53,13 @@ public class GameHandler extends GameState {
     private long milli_origin;
     private long last_turdle;
     private final long turdle_period;
+    private final int target_bikes;
+    private final long bike_timeout = 1000L;
+    private long bike_last = 0L;
     int turdle_serial;
     int rocket_serial;
     int explosion_serial;
+    int bike_serial;
     long deltatime;
     private static final Logger LOG = Logger.getLogger(
                 GameHandler.class.getName());
@@ -64,9 +74,11 @@ public class GameHandler extends GameState {
         this.testrocket = false;
         this.deltatime = 1l;
         this.explosion_serial = 0;
+        this.bike_serial = 0;
         this.rocket_serial = 0;
         this.turdle_serial = 0;
         this.turdle_period = 100l;
+        this.target_bikes = 12;
         this.last_turdle = milli_origin;
         this.milli_origin = System.currentTimeMillis();
         this.doneloop_count = 0;
@@ -75,7 +87,7 @@ public class GameHandler extends GameState {
         this.delayseconds = 2l;
         this.rnd = new Random();
         now = System.currentTimeMillis();
-        this.TERRAIN.setSize(20000.0, 10000.0).setPosition(new V3(0.0, 0, 0.0)).ConnectDatabase(null);
+        this.TERRAIN.setSize(200000.0, 100000.0).setPosition(new V3(0.0, 0, 0.0)).ConnectDatabase(null);
         this.ScheduleRunMe();
     }
 
@@ -95,7 +107,7 @@ public class GameHandler extends GameState {
             milli_origin = now;
             delta = (double) (deltatime); // seconds
             doneloop = false;
-            updatePlayers();
+            updatePlayers();  // <-------------------- main job.
             period_ms--;  // not really ms.
             if (period_ms < 0) {
                if (testrocket == false) {
@@ -176,7 +188,8 @@ public class GameHandler extends GameState {
                     
                 }
             } catch (NullPointerException e2) {
-                Logger.getLogger(GameHandler.class.getName()).log(Priority.INFO, "Oh no! Null pointer!" + ex);
+                Logger.getLogger(GameHandler.class.getName()).log(Level.INFO
+                        , "Oh no! Null pointer! {0}", e2);
             }
             // getSessions().remove(session.getId());  // crash null pointer.
             // Logger.getLogger(RocketHandler.class.getName()).log(Level.INFO, ex);
@@ -271,7 +284,40 @@ public class GameHandler extends GameState {
             p.ResetShootTimeout(now);
         }   
     }
-
+    
+    public void addBike(Player p) {
+        double deltaTime = milli_origin - bike_last;
+        if (deltaTime > bike_timeout) {
+            bike_last = milli_origin;   
+        } else {
+            return;
+        }
+                double px = p.getX();
+                double py = p.getY(); // + 10.0;
+                double pz = p.getZ();
+                // rotate around px, pz by theta.
+                double radius = 50.0;
+                double theta = rnd.nextDouble() * 6.28;  // close enough.
+                double veer = rnd.nextDouble();
+                px += radius * Math.cos(theta);
+                pz += radius * Math.sin(theta);
+                Bike b = new Bike();
+            b.setId("B" + bike_serial++);
+            b.setX(px);
+            b.setY(py);
+            b.setZ(pz);
+            b.setXr(p.getXr());
+            b.setYr(-theta + veer * veer * veer);
+            b.setZr(p.getZr());
+            // b.setCollider(Model.Collider.MISSILE);
+            b.setCollider(Model.Collider.TANK);
+           // b.MoveForward(100.3 / (b.getVelocity() * delta));
+            //t.MoveForward(t.getVelocity() * delta * 10.0);
+           // InfoLog("Adding Bicycle. id: " + b.getId() + " sz:" + 
+           //         getBIKESMANAGER().getModelCount());
+            getBIKESMANAGER().addModel(b.getId(), b);
+            hitboxHandler.AddModel(b);  
+    }
     public void removeRocket(String id) {        
        getROCKETMANAGER().delModel(id);
        hitboxHandler.DelModel(id);
@@ -299,6 +345,26 @@ public class GameHandler extends GameState {
         return null;
     }
     
+    private static JsonObject makeJsonFromModel(JsonProvider provider,
+                                                Object3dInterface p,
+                                                int collision,
+                                                boolean doScale) {
+       JsonObjectBuilder pj = provider.createObjectBuilder()
+              .add("id", p.getId())
+              .add("x", DF.format(p.getX()))
+              .add("y", DF.format(p.getY()))
+              .add("z", DF.format(p.getZ()))
+              .add("xr", DF.format(p.getXr()))
+              .add("yr", DF.format(p.getYr()))
+              .add("zr", DF.format(p.getZr()));
+        if (collision > -1) {
+            pj.add("col", collision);
+        }
+        if (doScale) {
+            pj.add("s", DF.format(p.getScale()));
+        }
+        return pj.build(); 
+    }
     
     private synchronized JsonObject createGamePacket() {
         JsonProvider provider = JsonProvider.provider();
@@ -309,22 +375,12 @@ public class GameHandler extends GameState {
         List<String> playersList = getPLAYERMANAGER().getPlayerIdsAsList();
         for (Iterator it = playersList.iterator(); it.hasNext();) {
             Player p = (Player) getPLAYERMANAGER().getPlayerById((String) it.next());
-
             int collision = 0;
             if (hitboxHandler.IsHit(p)) {
                 collision = 1;
             }
             // TODO: Adjust precision of numbers.
-            JsonObject pj = provider.createObjectBuilder()
-              .add("id", p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .add("col", collision)
-              .build();
+            JsonObject pj = makeJsonFromModel(provider, p, collision, false);
             jplayerlist.add(pj);
         }
         // ROCKETS
@@ -334,33 +390,27 @@ public class GameHandler extends GameState {
         for (String s : rockets) {
             Model p = (Model) getROCKETMANAGER().getModelById(s);
             if (p != null) {
-            JsonObject rj = provider.createObjectBuilder()
-              .add("id", p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .add("s", DF.format(p.getScale()))
-              .build();
-            jrocketlist.add(rj);
+                JsonObject rj = makeJsonFromModel(provider, p, -1, true);
+                jrocketlist.add(rj);
+            }
+        }
+        
+        // BIKES
+        JsonArrayBuilder jbikelist = provider.createArrayBuilder();
+        List<String> bikenames = getBIKESMANAGER().getModelIdsAsList();
+        //InfoLog("Rockets on my end: " + rockets.size());
+        for (String s : bikenames) {
+            Model p = (Model) getBIKESMANAGER().getModelById(s);
+            if (p != null) {
+                JsonObject rj = makeJsonFromModel(provider, p, -1, true);
+                jbikelist.add(rj);
             }
         }
  
         JsonArrayBuilder jturdlelist = provider.createArrayBuilder();
         for (Iterator it = getTURDLES().iterator(); it.hasNext();) {
             Turdle p = (Turdle) it.next();
-            JsonObject pj = provider.createObjectBuilder()
-              .add("id",p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()))
-              .add("s", DF.format(p.getScale()))
-              .build();        
+            JsonObject pj = makeJsonFromModel(provider, p, -1, true);        
             jturdlelist.add(pj);
         }
         JsonArrayBuilder jdotlist = provider.createArrayBuilder();
@@ -379,7 +429,7 @@ public class GameHandler extends GameState {
             Explosion p = getEXPLOSIONMANAGER().getModelById(id);
             JsonArrayBuilder pj = (JsonArrayBuilder) provider.createArrayBuilder()
               .add(p.getId())
-              .add(p.getX())
+              .add(DF.format(p.getX()))
               .add(p.getY())
               .add(p.getZ())
               .add(p.getScale());
@@ -387,7 +437,7 @@ public class GameHandler extends GameState {
               //.build();
             jexplosionlist.add(pj);
         }
-       
+                
         JsonObject packet = provider.createObjectBuilder()
                 .add("msg_type", "V1")
                 .add("playerlist", jplayerlist)
@@ -395,51 +445,16 @@ public class GameHandler extends GameState {
                 .add("turdlelist", jturdlelist)
                 .add("rocketlist", jrocketlist)
                 .add("explosions", jexplosionlist)
+                .add("bikelist", jbikelist)
                 .build();
         return packet;
     }
 
-    /*
-    private JsonObject createPosMessage(Player p) {
-        int collision = 0;
-        if (hitboxHandler.IsHit(p)) {
-            collision = 1;
-        }
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "pos")
-                .add("id", p.getId())
-                .add("x",p.getX())
-                .add("y",p.getY())
-                .add("z",p.getZ())
-                .add("xr",p.getXr())
-                .add("yr",p.getYr())
-                .add("zr",p.getZr())
-                .add("col", collision)
-                .build();
-        return addMessage;
-    }
-*/
     private JsonObject createRegisterMessage(Player p) {
         JsonProvider provider = JsonProvider.provider();
         JsonObject addMessage = provider.createObjectBuilder()
                 .add("msg_type", "register")
                 .add("id", p.getId())
-                .build();
-        return addMessage;
-    }
-
-    private JsonObject createAddMessage(Player p) {
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "new")
-                .add("id", p.getId())
-                .add("x",p.getX())
-                .add("y",p.getY())
-                .add("z",p.getZ())
-                .add("xr",p.getXr())
-                .add("yr",p.getYr())
-                .add("zr",p.getZr())
                 .build();
         return addMessage;
     }
@@ -480,7 +495,27 @@ public class GameHandler extends GameState {
     private void updateExplosions() {
         getEXPLOSIONMANAGER().updateModels(now, delta);
     }
+    
+    private void updateBikes(List<Player> players) {
+        List<Bike> bikes = getBIKESMANAGER().getModelsAsList();
+        int num_players = players.size();
+        if (num_players > 0 && bikes.size() < target_bikes) { // spawn bikes
+            // while (bikes.size() < target_bikes) {
+                int pidx = rnd.nextInt(num_players);
+                Player p = players.get(pidx);
+                addBike(p);
+            // }
+        }
+        getBIKESMANAGER().updateModels(now, delta);
+        for (Bike bike : bikes) {
+            bike.TrackTheGround(TERRAIN);
+        }
+    }
 
+    /** updatePlayers
+     * 
+     * Main game loop.
+     */
     private void updatePlayers() {
         
         List<Player> playerList = new ArrayList<>(getPLAYERMANAGER().getPlayersAsList());
@@ -495,7 +530,6 @@ public class GameHandler extends GameState {
                     addRocket(p.getId());
             }
         }
-        
         // Collide
         DetectCollisions();
         for (Player p : playerList) {
@@ -512,6 +546,11 @@ public class GameHandler extends GameState {
             updateRockets();
                     } catch(java.util.ConcurrentModificationException ex) {
             InfoLog("Fix  Rocket concurrent mods! " + ex.toString());
+        }
+        try {
+            updateBikes(playerList);
+                    } catch(java.util.ConcurrentModificationException ex) {
+            InfoLog("Fix Bikes concurrent mods! " + ex.toString());
         }
         try {
             updateExplosions();
@@ -572,6 +611,7 @@ public class GameHandler extends GameState {
                 for (Model m2 : h.GetHits()) {
                    switch (m2.getCollider()) {
                        case MISSILE:
+                           //LOG.info("Hitbox: " + h.toString() + " m:" + m.toString() + " m2:" + m2.toString());
                            // kaboom.
                            m.setDone();
                            m2.setDone();
