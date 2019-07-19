@@ -34,10 +34,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.spi.JsonProvider;
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 
 /**
  *
@@ -171,11 +170,11 @@ public class GameHandler extends GameState {
         addPlayer(session);
         Player p = getPLAYERMANAGER().getPlayerById(session.getId());
         sendToSession(session, createGamePacket());
-        JsonObject regMessage = createRegisterMessage(p);
+        JSONObject regMessage = createRegisterMessage(p);
         sendToSession(session, regMessage);
     }
     
-    public void sendToSession(Session session, JsonObject message) {
+    public void sendToSession(Session session, JSONObject message) {
         String sid = null; 
         try {
             sid = session.getId();
@@ -200,7 +199,7 @@ public class GameHandler extends GameState {
         String playerid = session.getId();
         removePlayer(playerid);
         getSessions().remove(playerid);
-        JsonObject delMe = createDelMessage(playerid);
+        JSONObject delMe = createDelMessage(playerid);
         // Do not send to disconnected player:
         getSessions().values().stream().forEach((s) -> {
             sendToSession((Session) s, delMe);
@@ -345,31 +344,30 @@ public class GameHandler extends GameState {
         return null;
     }
     
-    private static JsonObject makeJsonFromModel(JsonProvider provider,
-                                                Object3dInterface p,
+    private static JSONObject makeJsonFromModel(Object3dInterface p,
                                                 int collision,
                                                 boolean doScale) {
-       JsonObjectBuilder pj = provider.createObjectBuilder()
-              .add("id", p.getId())
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .add("xr", DF.format(p.getXr()))
-              .add("yr", DF.format(p.getYr()))
-              .add("zr", DF.format(p.getZr()));
+       JSONObject pj = new JSONObject();
+              pj.put("id", p.getId());
+              pj.put("x", DF.format(p.getX()));
+              pj.put("y", DF.format(p.getY()));
+              pj.put("z", DF.format(p.getZ()));
+              pj.put("xr", DF.format(p.getXr()));
+              pj.put("yr", DF.format(p.getYr()));
+              pj.put("zr", DF.format(p.getZr()));
         if (collision > -1) {
-            pj.add("col", collision);
+            pj.put("col", collision);
         }
         if (doScale) {
-            pj.add("s", DF.format(p.getScale()));
+            pj.put("s", DF.format(p.getScale()));
         }
-        return pj.build(); 
+        return pj;
     }
     
-    private synchronized JsonObject createGamePacket() {
-        JsonProvider provider = JsonProvider.provider();
+    private synchronized JSONObject createGamePacket() {
+        //JsonProvider provider = JsonProvider.provider();
         
-        JsonArrayBuilder jplayerlist = provider.createArrayBuilder();
+        JSONArray jplayerlist = new JSONArray();
        
         // PLAYERS
         List<String> playersList = getPLAYERMANAGER().getPlayerIdsAsList();
@@ -380,91 +378,84 @@ public class GameHandler extends GameState {
                 collision = 1;
             }
             // TODO: Adjust precision of numbers.
-            JsonObject pj = makeJsonFromModel(provider, p, collision, false);
-            jplayerlist.add(pj);
+            JSONObject pj = makeJsonFromModel(p, collision, false);
+            jplayerlist.put(pj);
         }
         // ROCKETS
-        JsonArrayBuilder jrocketlist = provider.createArrayBuilder();
+        JSONArray jrocketlist = new JSONArray();
         List<String> rockets = getROCKETMANAGER().getModelIdsAsList();
         //InfoLog("Rockets on my end: " + rockets.size());
         for (String s : rockets) {
             Model p = (Model) getROCKETMANAGER().getModelById(s);
             if (p != null) {
-                JsonObject rj = makeJsonFromModel(provider, p, -1, true);
-                jrocketlist.add(rj);
+                JSONObject rj = makeJsonFromModel(p, -1, true);
+                jrocketlist.put(rj);
             }
         }
         
         // BIKES
-        JsonArrayBuilder jbikelist = provider.createArrayBuilder();
+        JSONArray jbikelist = new JSONArray();
         List<String> bikenames = getBIKESMANAGER().getModelIdsAsList();
         //InfoLog("Rockets on my end: " + rockets.size());
         for (String s : bikenames) {
             Model p = (Model) getBIKESMANAGER().getModelById(s);
             if (p != null) {
-                JsonObject rj = makeJsonFromModel(provider, p, -1, true);
-                jbikelist.add(rj);
+                JSONObject rj = makeJsonFromModel(p, -1, true);
+                jbikelist.put(rj);
             }
         }
  
-        JsonArrayBuilder jturdlelist = provider.createArrayBuilder();
+        JSONArray jturdlelist = new JSONArray();
         for (Iterator it = getTURDLES().iterator(); it.hasNext();) {
             Turdle p = (Turdle) it.next();
-            JsonObject pj = makeJsonFromModel(provider, p, -1, true);        
-            jturdlelist.add(pj);
+            JSONObject pj = makeJsonFromModel(p, -1, true);        
+            jturdlelist.put(pj);
         }
-        JsonArrayBuilder jdotlist = provider.createArrayBuilder();
+        JSONArray jdotlist = new JSONArray();
         for (Iterator it = hitboxHandler.dots.iterator(); it.hasNext();) {
             Dot p = (Dot) it.next();
-            JsonObject pj = provider.createObjectBuilder()
-              .add("x", DF.format(p.getX()))
-              .add("y", DF.format(p.getY()))
-              .add("z", DF.format(p.getZ()))
-              .build();
-            jdotlist.add(pj);
+            JSONObject pj = new JSONObject();
+            pj.put("x", DF.format(p.getX()));
+            pj.put("y", DF.format(p.getY()));
+            pj.put("z", DF.format(p.getZ()));
+            jdotlist.put(pj);
         }
         
-        JsonArrayBuilder jexplosionlist = provider.createArrayBuilder();
+        JSONArray jexplosionlist = new JSONArray();
         for (String id: getEXPLOSIONMANAGER().getModelIdsAsList()) {
             Explosion p = getEXPLOSIONMANAGER().getModelById(id);
-            JsonArrayBuilder pj = (JsonArrayBuilder) provider.createArrayBuilder()
-              .add(p.getId())
-              .add(DF.format(p.getX()))
-              .add(p.getY())
-              .add(p.getZ())
-              .add(p.getScale());
-
-              //.build();
-            jexplosionlist.add(pj);
+            JSONArray pj = new JSONArray();
+              pj.put(p.getId());
+              pj.put(DF.format(p.getX()));
+              pj.put(p.getY());
+              pj.put(p.getZ());
+              pj.put(p.getScale());
+            jexplosionlist.put(pj);
         }
                 
-        JsonObject packet = provider.createObjectBuilder()
-                .add("msg_type", "V1")
-                .add("playerlist", jplayerlist)
-                .add("dotlist", jdotlist)
-                .add("turdlelist", jturdlelist)
-                .add("rocketlist", jrocketlist)
-                .add("explosions", jexplosionlist)
-                .add("bikelist", jbikelist)
-                .build();
+        JSONObject packet = new JSONObject()
+                .put("msg_type", "V1")
+                .put("playerlist", jplayerlist)
+                .put("dotlist", jdotlist)
+                .put("turdlelist", jturdlelist)
+                .put("rocketlist", jrocketlist)
+                .put("explosions", jexplosionlist)
+                .put("bikelist", jbikelist);
         return packet;
     }
 
-    private JsonObject createRegisterMessage(Player p) {
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "register")
-                .add("id", p.getId())
-                .build();
-        return addMessage;
+    private JSONObject createRegisterMessage(Player p) {
+        JSONObject putMessage = new JSONObject()
+                .put("msg_type", "register")
+                .put("id", p.getId());
+        return putMessage;
     }
     
-    private JsonObject createDelMessage(String id) {
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "del")
-                .add("id", id)
-                .build();
+    private JSONObject createDelMessage(String id) {
+
+        JSONObject addMessage = new JSONObject()
+                .put("msg_type", "del")
+                .put("id", id);
         return addMessage;
     }
 
@@ -566,7 +557,7 @@ public class GameHandler extends GameState {
         
         for (Player p : playerList) {
             if (p.isMoved() || true){
-                JsonObject m = createTerrainMessage(p);
+                JSONObject m = createTerrainMessage(p);
                 //System.out.println("Sending Terrain message to: " + p.getId());
                 if (m != null) {
                     sendToSession(getSessionById(p.getId()), m);
@@ -613,15 +604,28 @@ public class GameHandler extends GameState {
                        case MISSILE:
                            //LOG.info("Hitbox: " + h.toString() + " m:" + m.toString() + " m2:" + m2.toString());
                            // kaboom.
-                           m.setDone();
-                           m2.setDone();
-                           Explosion e = new Explosion(now, 1000, 5.0);
-                           e.copy(m);  // this is legit because model extends Object3D.
-                           e.setId(getEXPLOSIONMANAGER().GetNewSerial());
-                           getEXPLOSIONMANAGER().addModel(e.getId(), e);
-                           // make explosion.
+                           if (! m.isDone()) {
+                               m.setDone();
+                               m2.setDone();
+                               Explosion e = new Explosion(now, 1000, 5.0);
+                               e.copy(m);  // this is legit because model extends Object3D.
+                               e.setId(getEXPLOSIONMANAGER().GetNewSerial());
+                               getEXPLOSIONMANAGER().addModel(e.getId(), e);
+                           }
                            break;
                        case TANK:
+                           break;
+                       case BIKE:
+                           if (m.getCollider() == Model.Collider.BIKE) {
+                               if (! m.isDone()) {
+                                   m.setDone();
+                                   m2.setDone();
+                                   Explosion e = new Explosion(now, 500, 2.0);
+                                   e.copy(m);  // this is legit because model extends Object3D.
+                                   e.setId(getEXPLOSIONMANAGER().GetNewSerial());
+                                   getEXPLOSIONMANAGER().addModel(e.getId(), e);
+                               }
+                           }
                            break;
                            
                        default:
@@ -659,7 +663,7 @@ public class GameHandler extends GameState {
           }
     }
 
-    private void sendToAllConnectedSessions(JsonObject message) {
+    private void sendToAllConnectedSessions(JSONObject message) {
         // TODO: does this have to ack, they are TCP connections?
         getSessions().values().stream().forEach((session) -> {
             sendToSession(session, message);
@@ -671,36 +675,31 @@ public class GameHandler extends GameState {
     }
     
     public void InfoLog(String msg) {
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject logMessage = provider.createObjectBuilder()
-                .add("msg_type", "log")
-                .add("log", msg)
-                .build();
+        JSONObject logMessage = new JSONObject()
+                .put("msg_type", "log")
+                .put("log", msg);
         sendToAllConnectedSessions(logMessage);
         LOG.log(Level.INFO, msg);
     }
     
-    public JsonObject createTerrainTileMessage(String tilename) {
+    public JSONObject createTerrainTileMessage(String tilename) {
         AbstractTerrain t = getTERRAIN().GetTile(tilename);
         if (t == null) {
             System.out.println("Ask for null tilename, get null json.");
             return null;
         }
-        JsonProvider provider = JsonProvider.provider();
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "tile")
-                .add("n", t.toJson())
-                .build();
-        return addMessage; 
+        JSONObject putMessage = new JSONObject()
+                .put("msg_type", "tile")
+                .put("n", t.toJson());
+        return putMessage; 
     }
     
     
-    private JsonObject createTerrainMessage(Player p) {
+    private JSONObject createTerrainMessage(Player p) {
         double x = (double) p.getX();
         double y = (double) p.getZ();
         int radius = 4;
-        JsonProvider provider = JsonProvider.provider();
-        JsonArrayBuilder jpatches = provider.createArrayBuilder();    
+        JSONArray jpatches = new JSONArray();    
         List<String> tpatches = getTERRAIN().GetTileNamesFor(x, y, radius);
         //System.out.println("Getting tiles at: " + x + "," + y + ":" + radius + " = " + tpatches.size());
         if (tpatches.isEmpty())
@@ -709,13 +708,12 @@ public class GameHandler extends GameState {
         }
         
         tpatches.forEach((patch) -> {
-            jpatches.add(patch);
+            jpatches.put(patch);
         });
  
-        JsonObject addMessage = provider.createObjectBuilder()
-                .add("msg_type", "T")
-                .add("n", jpatches)
-                .build();
+        JSONObject addMessage = new JSONObject()
+                .put("msg_type", "T")
+                .put("n", jpatches);
         return addMessage;
     }
 }

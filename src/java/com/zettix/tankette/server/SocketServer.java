@@ -17,10 +17,7 @@ import javax.websocket.Session;
 import javax.inject.Inject;
 import javax.websocket.server.ServerEndpoint;
 import javax.enterprise.context.ApplicationScoped;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-
+import org.json.JSONObject;
 
 /**
  *
@@ -55,18 +52,17 @@ public class SocketServer {
     @OnMessage
     public void handleMessage(String message, Session session) {
         //System.out.println("MSG:"  + message);
-        try (JsonReader reader = Json.createReader(new StringReader(message))) {
-            JsonObject jsonMessage = reader.readObject();
-            String msg = jsonMessage.getString("msg_type");
-            if (null != msg) switch (msg) {
-                case "but":
-                    String playerid = session.getId();
-                    if (playerid != null && playerid.length() > 0) {
-                        Player p = sessionHandler.getPlayerById(playerid);
-                        if (p != null) {
-                            /*  Do not trust the player to send position info.
-                            InfoLog("Got info ZZZZZZZZZ"); */ 
-                            // TODO(sean): make defensive copy of player
+        JSONObject jsonMessage = new JSONObject(message);
+        String msg = jsonMessage.getString("msg_type");
+        if (null != msg) switch (msg) {
+            case "but":
+                String playerid = session.getId();
+                if (playerid != null && playerid.length() > 0) {
+                    Player p = sessionHandler.getPlayerById(playerid);
+                    if (p != null) {
+                        /*  Do not trust the player to send position info.
+                        InfoLog("Got info ZZZZZZZZZ"); */
+                        // TODO(sean): make defensive copy of player
                             p.setForward(jsonMessage.getBoolean("F"));
                             p.setBack(jsonMessage.getBoolean("B"));
                             p.setLeft(jsonMessage.getBoolean("L"));
@@ -79,21 +75,18 @@ public class SocketServer {
                             String tilename = jsonMessage.getString("t");
                             if (tilename != null && tilename.length() > 0) {
                                 //System.out.println("Creating packet for tile " + tilename);
-                                JsonObject json = sessionHandler.createTerrainTileMessage(tilename);
+                                JSONObject json = sessionHandler.createTerrainTileMessage(tilename);
                                 sessionHandler.sendToSession(session, json);
                             }
                         }
                     }
-                    break;
-                    
+                    break;     
                 default:
                     break;
-            }
+        }
             
-        } catch (org.jboss.weld.context.ContextNotActiveException ex) {
-            InfoLog("Bad connection: " + ex.toString());
-        }   
     } 
+    
     void InfoLog(String msg) {
        // LOG.warning(msg);
        Logger.getLogger(SocketServer.class.getName()).log(Level.SEVERE, 

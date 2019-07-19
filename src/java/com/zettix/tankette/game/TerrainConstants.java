@@ -52,7 +52,7 @@ public class TerrainConstants {
     static private Map<String, String> demTables = new HashMap<>();
     static private Map<String, String> textureTables = new HashMap<>();
     static private Map<String, String> imageFmt = new HashMap<>();
-    static private String terrainDefault = "tmars";
+    static private String terrainDefault = "mdtri";
     static private String mpath = "/mnt/sunshine/vids/software/mine/tankette-maps/";
     static private String tpath = "/home/sean/tankette-stuff/";
 
@@ -119,8 +119,8 @@ public class TerrainConstants {
         textureTables.put(  "mblur", "textures"); 
         imageFmt.put(       "mblur", "image_%s.jpg");       
         
-        terrainDems.put(    "mdtri", mpath +"mdtri.db");
-        terrainTextures.put("mdtri", mpath + "mdtri.db");  
+        terrainDems.put(    "mdtri", "/var/tmp/tiffy/mdtri.db");
+        terrainTextures.put("mdtri", "/var/tmp/tiffy/mdtri.db");  
         demTables.put(      "mdtri", "terrain");
         textureTables.put(  "mdtri", "textures");
         imageFmt.put(       "mdtri", "image_%s.jpg");       

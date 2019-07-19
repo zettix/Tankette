@@ -1,0 +1,9 @@
+dbtools: Directory containing files for the creation of terrain databases
+for use by Tankette.
+
+The terrain database is in sqlite3 and has 3 tables:
+manifest, terrain, and textures
+manifest has a single file, called manifest, with two integers, x and y.
+terrain and textures each contain x * y files.
+
+To generate a terrain database, run one of the make scripts.

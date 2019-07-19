@@ -12,7 +12,7 @@ import com.zettix.tankette.game.interfaces.ModelInterface;
  * @author sean
  */
 public class Model extends Object3D  implements ModelInterface {
-    public enum Collider {TANK, MISSILE, EXPLOSION, I_DUNNO_STUFF};
+    public enum Collider {TANK, MISSILE, EXPLOSION, BIKE, I_DUNNO_STUFF};
     // crude who-am-i needs thought.
     private Collider collider;
     private double radius;  // of sphere collider.

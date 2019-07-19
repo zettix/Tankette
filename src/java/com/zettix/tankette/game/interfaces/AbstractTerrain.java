@@ -7,7 +7,8 @@ package com.zettix.tankette.game.interfaces;
 
 import com.zettix.graphics.gjkj.util.V3;
 import java.util.List;
-import javax.json.JsonObject;
+//import javax.json.JsonObject;
+import org.json.JSONObject;
 
 /**
  *
@@ -108,7 +109,7 @@ public abstract class AbstractTerrain {
      *
      * @return JSON of data representing mesh and texture. Leafs only.
      */
-    public JsonObject toJson() {
+    public JSONObject toJson() {
         throw new UnsupportedOperationException(); 
     }
     

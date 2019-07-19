@@ -25,7 +25,7 @@ public class Bike extends Model {
     
     public Bike() {
         super();
-        setCollider(Collider.TANK);  // tank-tank: bump, tank-missle: boom
+        setCollider(Collider.BIKE);  // tank-tank: bump, tank-missle: boom
         setRadius(6.0);
         V3 dim = new V3(6.0, 6.0, 2.5);
         M4 mover = new M4().identity().move(-3.0, -3.0, -1.25);
@@ -34,7 +34,7 @@ public class Bike extends Model {
         h.boxHull.TransformObjectSpace(mover);
         setHitbox(h);
         // TODO(sean): bikes need AI, so a mood object or something, a controller.
-        setVelocity(.00);
+        setVelocity(.01);
         setForward(true);
     }
     

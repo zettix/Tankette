@@ -10,16 +10,18 @@ package com.zettix.tankette.game;
  * @author sean
  */
 import com.zettix.graphics.gjkj.util.V3;
-import com.zettix.graphics.gjkj.util.vecstuff;
+import com.zettix.graphics.gjkj.util.vecutil;
 import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Arrays;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.spi.JsonProvider;
+//import javax.json.Json;
+//import javax.json.JsonArray;
+//import javax.json.JsonArrayBuilder;
+import org.json.JSONObject;
+import org.json.JSONArray;
+//import javax.json.JsonObject;
+//import javax.json.spi.JsonProvider;
 
 
 public final class TerrainTile extends AbstractTerrain {
@@ -34,7 +36,7 @@ public final class TerrainTile extends AbstractTerrain {
   public final String url;              
   public final String name;              
   public final double[] data;              
-  public JsonObject json;
+  public JSONObject json;
   private long lastAccess;
   private static double last = 0.0f;
   private final String TTF = "%3.2f";
@@ -119,9 +121,9 @@ public final class TerrainTile extends AbstractTerrain {
     V3 n1 = new V3(n1x - n0x, n1y - n0y, n1z - n0z);
     V3 n2 = new V3(n2x - n0x, n2y - n0y, n2z - n0z);
     //System.out.println("n1: " + n1.toString() + " n2:" + n2.toString());
-    V3 nxn = vecstuff.cross(n1, n2);
+    V3 nxn = vecutil.cross_unsafe(n1, n2);
     //System.out.println("nxn:" + nxn.toString());
-    double nxnl = vecstuff.dot(nxn, nxn);
+    double nxnl = vecutil.dot_unsafe(nxn, nxn);
     double nxnlsqrt = Math.sqrt(nxnl);
     //System.out.println("nxnl:" + nxnl + " nxqsq" + nxnlsqrt);
     nxn.ScalarMultiply(1.0/nxnlsqrt);
@@ -237,27 +239,27 @@ public final class TerrainTile extends AbstractTerrain {
   
   // normal uses cross product.  
 
-  public JsonObject toJson() {
+  public JSONObject toJson() {
      // lazy.
      lastAccess = System.currentTimeMillis();
      if (json == null) {
        // composing json.
-       JsonProvider provider = JsonProvider.provider();
-       JsonArrayBuilder b = provider.createArrayBuilder();
+       // JsonProvider provider = JsonProvider.provider();
+       JSONArray b = new JSONArray();
        for (double f : data) {
-         b.add(f);
+         b.put(f);
        }
-       json = provider.createObjectBuilder()
-                  .add("n", name)
-                  .add("x", p.coords[0])
-                  .add("y", p.coords[2]) // NOTE threejs Plane Geo is XY(Z=0).
-                  .add("z", p.coords[1]) // So we swap Y/Z here and rotate 90 in the client.
-                  .add("rx", rx)
-                  .add("ry", ry)
-                  .add("c", c)
-                  .add("u", url)
-                  .add("d", b)
-                  .build();
+       json = new JSONObject();
+                  json.put("n", name);
+                  json.put("x", p.coords[0]);
+                  json.put("y", p.coords[2]); // NOTE threejs Plane Geo is XY(Z=0).
+                  json.put("z", p.coords[1]); // So we swap Y/Z here and rotate 90 in the client.
+                  json.put("rx", rx);
+                  json.put("ry", ry);
+                  json.put("c", c);
+                  json.put("u", url);
+                  json.put("d", b);
+                 // .build();
      }
      // System.out.println("I love you! " + this);
      return json;

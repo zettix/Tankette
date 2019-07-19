@@ -1,0 +1,12 @@
+ java -classpath "../../sqlite/sqlite-jdbc-3.19.3.jar:." SqlPusher -d /etc/dhcp/dhclient-exit-hooks.d/ -f goo.db -t h
+Processing  database goo.db with dir /etc/dhcp/dhclient-exit-hooks.d/ creating table h
+Loading JDBC
+Connecting to Database: goo.db
+Collected FILE : /etc/dhcp/dhclient-exit-hooks.d/debug
+Collected FILE : /etc/dhcp/dhclient-exit-hooks.d/zzz_avahi-autoipd
+Collected FILE : /etc/dhcp/dhclient-exit-hooks.d/rfc3442-classless-routes
+Collected FILE : /etc/dhcp/dhclient-exit-hooks.d/timesyncd
+Count: 4
+Putting: debug
+With a size of 1426
+Jello pudding pops! Insert errors: org.sqlite.SQLiteException: [SQLITE_CONSTRAINT_PRIMARYKEY]  A PRIMARY KEY constraint failed (UNIQUE constraint failed: h.id)
