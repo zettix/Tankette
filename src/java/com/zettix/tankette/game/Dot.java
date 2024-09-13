@@ -6,6 +6,7 @@
 package com.zettix.tankette.game;
 
 /**
+ * A dot, for diagnostics.  Just a 3d ball.
  *
  * @author sean
  */

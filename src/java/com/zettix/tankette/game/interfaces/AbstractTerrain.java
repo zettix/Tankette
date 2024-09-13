@@ -8,6 +8,7 @@ package com.zettix.tankette.game.interfaces;
 import com.zettix.graphics.gjkj.util.V3;
 import java.util.List;
 import javax.json.JsonObject;
+import com.zettix.tankette.game.TerrainConstants;
 
 /**
  *
@@ -86,7 +87,7 @@ public abstract class AbstractTerrain {
     
     /** Connect to terrain database(s).
      *
-     *  @see TerrainConstants.java
+     *  @see TerrainConstants
      * 
      *  @param databaseKey Key of database configuration from constants.
      */

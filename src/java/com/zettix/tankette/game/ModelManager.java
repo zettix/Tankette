@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Manager for hitboxes.
  *
  * @author sean
  * @param <T>  Model class. Manage Models: Geometry and Hitboxes.

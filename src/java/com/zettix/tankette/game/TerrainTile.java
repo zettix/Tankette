@@ -10,7 +10,7 @@ package com.zettix.tankette.game;
  * @author sean
  */
 import com.zettix.graphics.gjkj.util.V3;
-import com.zettix.graphics.gjkj.util.vecstuff;
+import com.zettix.graphics.gjkj.util.vecutil;
 import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -119,9 +119,9 @@ public final class TerrainTile extends AbstractTerrain {
     V3 n1 = new V3(n1x - n0x, n1y - n0y, n1z - n0z);
     V3 n2 = new V3(n2x - n0x, n2y - n0y, n2z - n0z);
     //System.out.println("n1: " + n1.toString() + " n2:" + n2.toString());
-    V3 nxn = vecstuff.cross(n1, n2);
+    V3 nxn = vecutil.cross_unsafe(n1, n2);
     //System.out.println("nxn:" + nxn.toString());
-    double nxnl = vecstuff.dot(nxn, nxn);
+    double nxnl = vecutil.dot_unsafe(nxn, nxn);
     double nxnlsqrt = Math.sqrt(nxnl);
     //System.out.println("nxnl:" + nxnl + " nxqsq" + nxnlsqrt);
     nxn.ScalarMultiply(1.0/nxnlsqrt);

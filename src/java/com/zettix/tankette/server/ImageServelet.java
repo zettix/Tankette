@@ -24,16 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "ImageServelet", urlPatterns = {"/ImageServelet"})
 public class ImageServelet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servelet request
-     * @param response servelet response
-     * @throws ServletException if a servelet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    
+
     private int requestCount = 0;
     private DataBaseHandler db = null;
     private String table = null;
@@ -57,10 +48,17 @@ public class ImageServelet extends HttpServlet {
             contentType = "image/png";
         }
     }
-    
-    
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servelet request
+     * @param response servelet response
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
         
         if (db == null) {
             ConnectToDataBase();
@@ -93,8 +91,7 @@ public class ImageServelet extends HttpServlet {
                  val = "Database not connected.";
              }
         }
-        
-        
+
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
@@ -120,7 +117,6 @@ public class ImageServelet extends HttpServlet {
             out.println("</html>");
         }
     }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -160,5 +156,4 @@ public class ImageServelet extends HttpServlet {
     public String getServletInfo() {
         return "Image Server via DataBase";
     }// </editor-fold>
-
 }

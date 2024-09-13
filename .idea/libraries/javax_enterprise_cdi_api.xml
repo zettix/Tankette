@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="javax.enterprise.cdi.api" type="repository">
+    <properties maven-id="javax.enterprise:cdi-api:2.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/javax/enterprise/cdi-api/2.0/cdi-api-2.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/el/javax.el-api/3.0.0/javax.el-api-3.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/interceptor/javax.interceptor-api/1.2/javax.interceptor-api-1.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/inject/javax.inject/1/javax.inject-1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

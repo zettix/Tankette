@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Base class for hit boxes.
  *
  * @author sean
  */

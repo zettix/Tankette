@@ -8,6 +8,7 @@ package com.zettix.tankette.game;
 import com.zettix.tankette.game.interfaces.ModelInterface;
 
 /**
+ * Base class for a Model.
  *
  * @author sean
  */

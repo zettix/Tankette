@@ -12,6 +12,7 @@ import com.zettix.tankette.game.interfaces.AbstractTerrain;
 import java.util.logging.Logger;
 
 /**
+ * A Bicycle.
  *
  * @author sean
  */

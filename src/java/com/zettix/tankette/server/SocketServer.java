@@ -90,7 +90,8 @@ public class SocketServer {
                     break;
             }
             
-        } catch (org.jboss.weld.context.ContextNotActiveException ex) {
+        //} catch (org.jboss.weld.context.ContextNotActiveException ex) {
+        } catch (Exception ex) {
             InfoLog("Bad connection: " + ex.toString());
         }   
     } 

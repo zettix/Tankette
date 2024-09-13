@@ -6,6 +6,7 @@
 package com.zettix.tankette.game;
 import java.lang.Math.*;
 /**
+ * An explosion model.
  *
  * @author sean
  */
